@@ -1,0 +1,7 @@
+streamlit>=1.31
+pandas
+numpy
+sentence-transformers
+torch
+pykakasi
+streamlit-extras
