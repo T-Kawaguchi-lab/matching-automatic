@@ -1,2 +1,6 @@
 pandas
 openpyxl
+numpy
+requests
+beautifulsoup4
+lxml

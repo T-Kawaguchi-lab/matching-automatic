@@ -2,8 +2,11 @@ name: Forms Pipeline
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [forms_response_submitted]
+  push:
+    branches:
+      - main
+    paths:
+      - 'incoming/forms_latest.xlsx'
 
 jobs:
   run-pipeline:
@@ -30,33 +33,15 @@ jobs:
       - name: Prepare folders
         run: mkdir -p incoming data matching_app/data
 
-      - name: Restore latest Excel from repository_dispatch payload
-        if: github.event_name == 'repository_dispatch'
-        shell: bash
-        run: |
-          python - << 'PY'
-          import json, os, base64, pathlib
-          event_path = os.environ["GITHUB_EVENT_PATH"]
-          p = pathlib.Path("incoming/forms_latest.xlsx")
-          data = json.loads(pathlib.Path(event_path).read_text(encoding="utf-8"))
-          payload = data.get("client_payload", {})
-          excel_b64 = payload.get("excel_base64")
-          if not excel_b64:
-              raise SystemExit("excel_base64 not found in repository_dispatch payload")
-          p.write_bytes(base64.b64decode(excel_b64))
-          print(f"saved {p}")
-          PY
-
-      - name: Check manual test file
-        if: github.event_name == 'workflow_dispatch'
+      - name: Check input file
         shell: bash
         run: |
           python - << 'PY'
           from pathlib import Path
           p = Path("incoming/forms_latest.xlsx")
           if not p.exists():
-              raise SystemExit("workflow_dispatch で動かす場合は、先に incoming/forms_latest.xlsx を repo に入れてください。")
-          print(f"manual test file found: {p}")
+              raise SystemExit("incoming/forms_latest.xlsx がありません。")
+          print(f"input file found: {p}")
           PY
 
       - name: Run pipeline
