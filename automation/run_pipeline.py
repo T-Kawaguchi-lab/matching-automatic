@@ -28,7 +28,7 @@ TRIOS_OUT_JSONL = ROOT / "tmp_trios_enriched.jsonl"
 THESIS_OUT_JSONL = ROOT / "tmp_thesis_enriched.jsonl"
 
 FINAL_JSONL = DATA_DIR / "researcher_latest.jsonl"
-FINAL_URL_XLSX = DATA_DIR / "url_latest.csv"
+FINAL_URL_CSV = DATA_DIR / "url_latest.csv"
 STATUS_JSON = DATA_DIR / "pipeline_status.json"
 
 
@@ -183,14 +183,14 @@ def copy_to_app_data(status):
     app_data.mkdir(parents=True, exist_ok=True)
 
     shutil.copy2(FINAL_JSONL, app_data / FINAL_JSONL.name)
-    shutil.copy2(FINAL_URL_XLSX, app_data / FINAL_URL_XLSX.name)
+    shutil.copy2(FINAL_URL_CSV, app_data / FINAL_URL_CSV.name)
     shutil.copy2(STATUS_JSON, app_data / STATUS_JSON.name)
 
     status["app_data_sync"] = {
         "status": "ok",
         "copied": [
             str(app_data / FINAL_JSONL.name),
-            str(app_data / FINAL_URL_XLSX.name),
+            str(app_data / FINAL_URL_CSV.name),
             str(app_data / STATUS_JSON.name),
         ],
         "time": now_iso(),
