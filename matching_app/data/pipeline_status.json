@@ -25,16 +25,5 @@
     "reason": "thesis_enricher_real.py not found",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/data/researcher_latest.jsonl",
     "time": "2026-03-09T08:31:22.685997+00:00"
-  },
-  "app_data_sync": {
-    "status": "ok",
-    "copied": [
-      "/home/runner/work/matching-automatic/matching-automatic/matching_app/data/researcher_latest.jsonl",
-      "/home/runner/work/matching-automatic/matching-automatic/matching_app/data/url_latest.csv",
-      "/home/runner/work/matching-automatic/matching-automatic/matching_app/data/pipeline_status.json"
-    ],
-    "time": "2026-03-09T08:31:22.689115+00:00"
-  },
-  "finished_at": "2026-03-09T08:31:22.689123+00:00",
-  "final_status": "ok"
+  }
 }
