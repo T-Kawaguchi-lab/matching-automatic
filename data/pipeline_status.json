@@ -1,29 +1,30 @@
 {
-  "started_at": "2026-03-11T12:27:18.214910+00:00",
+  "started_at": "2026-03-11T12:49:04.627259+00:00",
   "input_xlsx": "/home/runner/work/matching-automatic/matching-automatic/incoming/forms_latest.xlsx",
   "structured_generation": {
     "status": "ok",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/tmp_structured.jsonl",
     "output_xlsx": "/home/runner/work/matching-automatic/matching-automatic/tmp_structured.xlsx",
-    "time": "2026-03-11T12:27:19.829852+00:00"
+    "time": "2026-03-11T12:49:06.299942+00:00"
   },
   "url_generation": {
     "status": "ok",
     "mode": "local_streamlit_preview",
     "output_csv": "/home/runner/work/matching-automatic/matching-automatic/data/url_latest.csv",
     "output_html_dir": "/home/runner/work/matching-automatic/matching-automatic/data/survey_html",
-    "time": "2026-03-11T12:27:20.574126+00:00"
+    "streamlit_base_url": "https://matching-automatic-e7d9kjg9bivjjndmqvuw93.streamlit.app/~/+",
+    "time": "2026-03-11T12:49:07.031113+00:00"
   },
   "trios_enrich": {
     "status": "ok",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/tmp_trios_enriched.jsonl",
-    "time": "2026-03-11T12:33:08.294739+00:00"
+    "time": "2026-03-11T12:54:48.998417+00:00"
   },
   "thesis_enrich": {
     "status": "ok",
     "mode": "real_script",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/data/researcher_latest.jsonl",
-    "time": "2026-03-11T12:33:08.755887+00:00"
+    "time": "2026-03-11T12:54:49.460566+00:00"
   },
   "app_data_sync": {
     "status": "ok",
@@ -33,8 +34,8 @@
       "/home/runner/work/matching-automatic/matching-automatic/matching_app/data/pipeline_status.json",
       "/home/runner/work/matching-automatic/matching-automatic/matching_app/data/survey_html"
     ],
-    "time": "2026-03-11T12:33:08.827808+00:00"
+    "time": "2026-03-11T12:54:49.534052+00:00"
   },
-  "finished_at": "2026-03-11T12:33:08.827820+00:00",
+  "finished_at": "2026-03-11T12:54:49.534063+00:00",
   "final_status": "ok"
 }
