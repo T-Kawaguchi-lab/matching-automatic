@@ -601,13 +601,24 @@ st.write("pipeline_status.json exists:", status_path.exists())
 st.write("url_latest.csv exists:", url_path.exists())
 st.write("researcher_latest.jsonl exists:", jsonl_path.exists())
 
+# ---- 最終更新日時表示 ----
 if status_path.exists():
     try:
         status = json.loads(status_path.read_text(encoding="utf-8"))
-        st.write("### Pipeline Status")
-        st.json(status)
+
+        # pipeline終了時刻
+        finished_time = status.get("pipeline_finished_at")
+
+        from datetime import datetime
+
+        if finished_time:
+            dt = datetime.fromisoformat(finished_time.replace("Z","+00:00"))
+            st.success("最終更新 / Last update : " + dt.strftime("%Y-%m-%d %H:%M:%S"))
+        else:
+            st.warning("pipeline_status.json に更新時刻が見つかりません")
+
     except Exception as e:
-        st.warning(f"pipeline_status.json の読込失敗: {e}")
+        st.warning(f"最終更新時刻の取得に失敗しました: {e}")
 # ------------------------
 # Build df
 # ------------------------
