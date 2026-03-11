@@ -579,6 +579,49 @@ with st.sidebar:
     st.divider()
     st.caption(f"使用モデル / Model : {DEFAULT_MODEL}")
 
+#自動化確認
+status_path = DATA_DIR / "pipeline_status.json"
+
+# ---- 最終更新日時表示 ----
+if status_path.exists():
+    try:
+        from datetime import datetime
+
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+
+        candidate_times = []
+
+        # 1) 旧来/将来用の候補
+        for key in ["pipeline_finished_at", "finished_at", "updated_at", "last_updated", "time", "started_at"]:
+            v = status.get(key)
+            if isinstance(v, str) and v.strip():
+                candidate_times.append(v.strip())
+
+        # 2) 各ステップの time を拾う
+        for step_key, step_val in status.items():
+            if isinstance(step_val, dict):
+                t = step_val.get("time")
+                if isinstance(t, str) and t.strip():
+                    candidate_times.append(t.strip())
+
+        # 3) 一番新しい時刻を使う
+        parsed = []
+        for t in candidate_times:
+            try:
+                parsed.append(datetime.fromisoformat(t.replace("Z", "+00:00")))
+            except Exception:
+                pass
+
+        if parsed:
+            latest_dt = max(parsed)
+            st.write("最終更新 / Last update : " + latest_dt.strftime("%Y-%m-%d %H:%M:%S"))
+        else:
+            # JSON内に時刻がなければ、ファイル更新時刻を使う
+            mtime = datetime.fromtimestamp(status_path.stat().st_mtime)
+            st.write("最終更新 / Last update : " + mtime.strftime("%Y-%m-%d %H:%M:%S"))
+
+    except Exception as e:
+        st.write(f"最終更新時刻の取得に失敗しました: {e}")
 # ------------------------
 # Load selected data
 # ------------------------
@@ -624,56 +667,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-#自動化確認
-status_path = DATA_DIR / "pipeline_status.json"
-url_path = DATA_DIR / "url_latest.csv"
-jsonl_path = DATA_DIR / "researcher_latest.jsonl"
 
-st.write("### 自動更新ファイル確認 / Pipeline File Check")
-st.write("pipeline_status.json exists:", status_path.exists())
-st.write("url_latest.csv exists:", url_path.exists())
-st.write("researcher_latest.jsonl exists:", jsonl_path.exists())
-
-# ---- 最終更新日時表示 ----
-if status_path.exists():
-    try:
-        from datetime import datetime
-
-        status = json.loads(status_path.read_text(encoding="utf-8"))
-
-        candidate_times = []
-
-        # 1) 旧来/将来用の候補
-        for key in ["pipeline_finished_at", "finished_at", "updated_at", "last_updated", "time", "started_at"]:
-            v = status.get(key)
-            if isinstance(v, str) and v.strip():
-                candidate_times.append(v.strip())
-
-        # 2) 各ステップの time を拾う
-        for step_key, step_val in status.items():
-            if isinstance(step_val, dict):
-                t = step_val.get("time")
-                if isinstance(t, str) and t.strip():
-                    candidate_times.append(t.strip())
-
-        # 3) 一番新しい時刻を使う
-        parsed = []
-        for t in candidate_times:
-            try:
-                parsed.append(datetime.fromisoformat(t.replace("Z", "+00:00")))
-            except Exception:
-                pass
-
-        if parsed:
-            latest_dt = max(parsed)
-            st.success("最終更新 / Last update : " + latest_dt.strftime("%Y-%m-%d %H:%M:%S"))
-        else:
-            # JSON内に時刻がなければ、ファイル更新時刻を使う
-            mtime = datetime.fromtimestamp(status_path.stat().st_mtime)
-            st.success("最終更新 / Last update : " + mtime.strftime("%Y-%m-%d %H:%M:%S"))
-
-    except Exception as e:
-        st.warning(f"最終更新時刻の取得に失敗しました: {e}")
 # ------------------------
 # Build df
 # ------------------------
