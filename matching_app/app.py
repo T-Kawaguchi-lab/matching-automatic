@@ -1052,14 +1052,14 @@ with stylable_container(
     with col3:
         preview_url = str(row.get("streamlit_preview_url", "") or "").strip()
 
-        # row の id ではなく、今一覧で選んでいる picked_id を使う
+    # row の id ではなく、今一覧で選んでいる picked_id を使う
         current_selected_id = str(picked_id or "").strip()
 
         if preview_url:
             sep = "&" if "?" in preview_url else "?"
             preview_url_with_state = f"{preview_url}{sep}selected_id={current_selected_id}"
             st.markdown(
-                f'**アンケート / Survey**<br><a href="{preview_url_with_state}">見る / View</a>',
+                f'**アンケート / Survey**<br><a href="{preview_url_with_state}" target="_self" rel="noopener noreferrer">見る / View</a>',
                 unsafe_allow_html=True
             )
         else:
