@@ -1176,23 +1176,25 @@ show_cols = [
     "streamlit_preview_url",
 ]
 res_show = res[show_cols].copy()
-if "streamlit_preview_url" in res_show.columns:
-    res_show = res_show.rename(columns={"streamlit_preview_url": "survey_url"})
 
-if "streamlit_preview_url" in res_show.columns:
-    def add_selected_id(url, selected_id):
-        url = str(url or "").strip()
-        selected_id = str(selected_id or "").strip()
-        if not url or not selected_id:
-            return url
-        sep = "&" if "?" in url else "?"
-        return f"{url}{sep}selected_id={selected_id}"
+def add_selected_id(url, selected_id):
+    url = str(url or "").strip()
+    selected_id = str(selected_id or "").strip()
+    if not url or not selected_id:
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}selected_id={selected_id}"
 
-    # 飛び先の人の id ではなく、今選択中の picked_id を全行に付ける
+# まず元の列 streamlit_preview_url に selected_id を付ける
+if "streamlit_preview_url" in res_show.columns:
     res_show["streamlit_preview_url"] = [
         add_selected_id(u, picked_id)
         for u in res_show["streamlit_preview_url"]
     ]
+
+# そのあとで表示用に列名を変える
+if "streamlit_preview_url" in res_show.columns:
+    res_show = res_show.rename(columns={"streamlit_preview_url": "survey_url"})
 
 download_df = res_show.copy()
 
