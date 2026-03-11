@@ -72,7 +72,10 @@ def render_preview_page(preview_id: str) -> None:
         back_url = f"./?selected_id={selected_id}"
 
     try:
-        st.markdown(f'[一覧へ戻る / Back to results]({back_url})', unsafe_allow_html=True)
+        st.markdown(
+            f'<a href="{back_url}" target="_self">一覧へ戻る / Back to results</a>',
+            unsafe_allow_html=True
+        )
     except Exception:
         pass
 
@@ -278,6 +281,120 @@ def exact_match_words_between_a(query_items: List[str], doc_items: List[str]) ->
 
     matched_keys = sorted(set(q_map.keys()) & set(d_map.keys()))
     return [q_map[k] for k in matched_keys]
+
+def _esc_html(v):
+    import html
+    if pd.isna(v):
+        return ""
+    return html.escape(str(v))
+
+def build_results_table_html(df: pd.DataFrame) -> str:
+    cols = [
+        "rank",
+        "similarity_a",
+        "matched_words",
+        "similarity_b",
+        "similarity_c",
+        "similarity",
+        "id",
+        "name",
+        "affiliation",
+        "position",
+        "research_field",
+        "summary",
+        "streamlit_preview_url",
+        "matched_url",
+    ]
+
+    headers = {
+        "rank": "順位 / Rank",
+        "similarity_a": "A",
+        "matched_words": "一致ワード / Matched Words",
+        "similarity_b": "B",
+        "similarity_c": "C",
+        "similarity": "総合類似度 / Overall Similarity",
+        "id": "id",
+        "name": "name",
+        "affiliation": "affiliation",
+        "position": "position",
+        "research_field": "research_field",
+        "summary": "summary",
+        "streamlit_preview_url": "アンケート表示 / Survey Preview",
+        "matched_url": "TRIOS URL",
+    }
+
+    html_rows = []
+
+    for _, row in df.iterrows():
+        tds = []
+        for c in cols:
+            val = row.get(c, "")
+
+            if c == "streamlit_preview_url":
+                url = str(val or "").strip()
+                if url:
+                    cell = f'<a href="{_esc_html(url)}" target="_self">open</a>'
+                else:
+                    cell = ""
+            elif c == "matched_url":
+                url = str(val or "").strip()
+                if url:
+                    cell = f'<a href="{_esc_html(url)}" target="_blank">open</a>'
+                else:
+                    cell = ""
+            elif c in ["similarity_a", "similarity_b", "similarity_c", "similarity"]:
+                try:
+                    cell = f"{float(val):.4f}"
+                except Exception:
+                    cell = _esc_html(val)
+            else:
+                cell = _esc_html(val)
+
+            tds.append(f"<td>{cell}</td>")
+
+        html_rows.append("<tr>" + "".join(tds) + "</tr>")
+
+    thead = "<tr>" + "".join(f"<th>{_esc_html(headers[c])}</th>" for c in cols) + "</tr>"
+    tbody = "".join(html_rows)
+
+    return f"""
+    <style>
+    .results-table-wrap {{
+        overflow-x: auto;
+        max-height: 700px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }}
+    table.results-table {{
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+        background: white;
+    }}
+    .results-table th, .results-table td {{
+        border-bottom: 1px solid #eee;
+        padding: 8px 10px;
+        text-align: left;
+        vertical-align: top;
+        white-space: normal;
+    }}
+    .results-table th {{
+        position: sticky;
+        top: 0;
+        background: #f7f7f7;
+        z-index: 1;
+    }}
+    .results-table tr:hover {{
+        background: #fafafa;
+    }}
+    </style>
+    <div class="results-table-wrap">
+      <table class="results-table">
+        <thead>{thead}</thead>
+        <tbody>{tbody}</tbody>
+      </table>
+    </div>
+    """
 
 def build_embedding_texts_three_axes(r: Dict[str, Any]) -> Tuple[str, str, str, str]:
     """
@@ -1199,25 +1316,9 @@ json_bytes = download_df.to_json(orient="records", force_ascii=False, indent=2).
 st.subheader(f"検索結果 / Results list （推薦 / Recommendation : {doc_label})　　件数 / Count : {len(res_show)}")
 st.caption(f"表示 / Direction : {query_label} → {doc_label}")
 st.caption("※ 入力データが一致している場合は、類似度に +0.01 されます。 / If the input data matches exactly, +0.01 is added to the similarity score.")
-try:
-    st.dataframe(
-        res_show,
-        use_container_width=True,
-        height=700,
-        column_config={
-            "streamlit_preview_url": st.column_config.LinkColumn("アンケート表示 / Survey Preview", display_text="open"),
-            "matched_url": st.column_config.LinkColumn("TRIOS URL", display_text="open"),
-            "similarity_a": st.column_config.NumberColumn("A", format="%.4f"),
-            "matched_words": st.column_config.TextColumn("一致ワード / Matched Words"),
-            "similarity_b": st.column_config.NumberColumn("B", format="%.4f"),
-            "similarity_c": st.column_config.NumberColumn("C", format="%.4f"),
-            "similarity": st.column_config.NumberColumn("総合類似度 / Overall Similarity", format="%.4f"),
-            "rank": st.column_config.NumberColumn("順位 / Rank")
-        },
-        hide_index=True,
-    )
-except Exception:
-    st.dataframe(res_show, use_container_width=True, height=700, hide_index=True)
+results_html = build_results_table_html(res_show)
+st.markdown(results_html, unsafe_allow_html=True)
+
 
 st.caption(f"使用モデル / Model : {DEFAULT_MODEL}")
 
