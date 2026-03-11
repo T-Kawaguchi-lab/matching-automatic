@@ -97,17 +97,20 @@ def run_optional_url_generation(status):
     if not URL_SCRIPT.exists():
         raise FileNotFoundError(f"URL生成スクリプトがありません: {URL_SCRIPT}")
 
-    run(
-        [
-            sys.executable,
-            str(URL_SCRIPT),
-            "--input-xlsx", str(INCOMING_XLSX),
-            "--output-csv", str(FINAL_URL_CSV),
-            "--output-html-dir", str(FINAL_SURVEY_HTML_DIR),
-            "--streamlit-base-url", "",
-        ],
-        cwd=ROOT / "url_builder"
-    )
+    streamlit_base_url = ""
+
+    cmd = [
+        sys.executable,
+        str(URL_SCRIPT),
+        "--input-xlsx", str(INCOMING_XLSX),
+        "--output-csv", str(FINAL_URL_CSV),
+        "--output-html-dir", str(FINAL_SURVEY_HTML_DIR),
+    ]
+
+    if streamlit_base_url.strip():
+        cmd += ["--streamlit-base-url", streamlit_base_url.strip()]
+
+    run(cmd, cwd=ROOT / "url_builder")
 
     status["url_generation"] = {
         "status": "ok",
