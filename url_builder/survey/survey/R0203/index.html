@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R0203</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 16px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid #ddd;padding:10px;vertical-align:top}
+th{background:#f5f5f5;width:360px;text-align:left}
+td{white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body>
+<table>
+<tr><th>氏名　Name</th><td>崔　宰栄</td></tr>
+<tr><th>メール</th><td>anonymous</td></tr>
+<tr><th>　所属（教員組織）※学生は指導教員の所属を選択　/Affiliation (Faculty/Organization)</th><td>人文社会系/Faculty of Humanities and Social Sciences</td></tr>
+<tr><th>専門分野/ Research Field </th><td>比較政治学、計量分析</td></tr>
+<tr><th>以下の項目から選んでください。 Please select from the options below.</th><td>教員・研究員/ Faculty Member / Researcher</td></tr>
+<tr><th>職位 Position </th><td>准教授</td></tr>
+<tr><th>2－1研究へのAIの活用経験と意識（当てはまるものを選んでください）/Experience with and Perceptions of AI Utilization in Research</th><td>AIを活用して研究を実施したことがある/I have conducted research using AI.</td></tr>
+<tr><th>3-1　AI を活用することで推進したい（推進した）研究テーマを回答ください。（1テーマ40字程度）Please describe the research theme(s) you would like to promote (or have promoted) by utilizing AI.</th><td>国会会議録による公的年金議論構造変化のAI分析</td></tr>
+<tr><th>3-2　AIを活用することで解決したい（解決した）学術的課題の概要を教えてください（分野外の専門家がわかるように。1テーマ100〜300字程度）Please provide an overview of the academic challenge(s) you would like to address (or have addressed) by utilizing AI.</th><td>本研究は、国会会議録（2010–2025年）における公的年金に関する発言（実測2,143件）を対象に、高次元意味ベクトル空間を構築し、年度間の分布差異を定量化することにより、政策思考構造の変化を明らかにする。コサイン距離を主指標として年度間差異を測定するとともに、ユークリッド距離により頑健性を確認することで、従来のテキスト分析では把握困難であった議論構造の転換を客観的に検出する新たなAIベースの分析枠組みを提示する。</td></tr>
+<tr><th>3-3　以下内容がわかる場合は具体的に教えてください。１．研究テーマで AI が特に有効または改善ができる部分はどこ（何）でしょうか？２．AIを活用することによって、研究分野にどのようなインパクトをあたえられるでしょうか？If possible, please provide specific details on the following points: 1Which part(s) ...</th><td>１． AIが特に有効な部分
+公的年金に関する国会議論は、語彙の変化や表現の多様化を伴いながら長期的に展開している。従来の頻度分析や共起分析では、表層的な語の出現傾向は把握できるものの、意味水準での構造的変化を捉えることは困難である。本研究では、文書埋め込みにより発言を高次元意味空間に変換し、年度間の分布差異を距離指標で測定することで、政策思考構造の再編を定量的に把握する点においてAIが本質的に有効である。
+
+２． 研究分野へのインパクト
+本研究は、議論量の増減ではなく「意味構造の変化」を定量化する分析枠組みを提示する点に特徴がある。これにより、政策過程研究におけるテキストデータの扱いを高度化し、他の政策分野や自治体議会分析への展開を可能にする。AIを用いた意味空間解析を社会科学領域に適用する具体的事例として、AI for Scienceの波及・振興にも資することが期待される。</td></tr>
+<tr><th>3-4 現時点で AI for Science チャレンジ型に応募したいと思いますか？At this point, would you like to apply for the AI for Science Challenge–type program?</th><td>応募したい　I would like to apply.</td></tr>
+<tr><th>3-5 　ご自身の研究活動にAIを導入・活用するときの課題があれば教えてください。支援構築の参考にします。（複数選択可）If you have any challenges or concerns regarding the introduction or use of AI in your own research activities, please let us know.</th><td>データ整理・前処理が大変そう　Data organization and preprocessing seem difficult and time-consuming.;自分の専門分野領域でAI活用がどう評価されるかわからない　I am unsure how the use of AI will be evaluated within my own research field.;相談できる相手がいない/AI専門研究者への伝手がない　I do not have anyone to consult with / I have no connections to AI specialist researchers.;</td></tr>
+<tr><th>3-6　上記テーマのためのデータは既に取得済みですか？　Have the data for the above research theme already been collected?</th><td>データは既に取得済み、取得途中・公開データ・パブリックデータを活用予定 / The data have already been collected.　The data are currently being collected, or we plan to use existing open or public datasets.</td></tr>
+<tr><th>4-1　今後AI活用したい（これまでAI活用した）研究データについて取得先や収集手法について可能な範囲で教えてください。 Please describe, to the extent possible, the sources and collection methods of the research data that you would like to use (or have us...</th><td>本研究では、国立国会図書館が公開する国会会議録検索システムAPIを用い、公的年金に関する発言データを取得する。対象期間は2010年から2025年までとし、検索語（例：公的年金）に基づき発言単位で抽出する。本申請に当たり、同条件で2,143件の取得および件数確認を実施済みである。取得したJSON形式データを整形し、発言本文および会議名・発言者・日付等のメタデータを含む分析用データセットを構築する。データはすべて公開情報であり、個人情報の新規取得は行わない。</td></tr>
+<tr><th>4-2　以下を参考にデータの種類等を可能な範囲で教えてください。  観測データ / 実験データ / 測定データ  画像 / 音声 / 動画 / テキスト / 時系列  数値シミュレーション結果  センサーデータ        行動データ / 社会調査・アンケートデータ　（横断的にデータ取得/縦断的：一人物に複数点）  文献データ / デジタルアーカイブ  その他
+
+Please descr...</th><td>本研究で用いるデータは、国会会議録検索システムAPIにより取得する公開テキストデータであり、デジタルアーカイブに属する観察データである。主たるデータ形式はテキストであり、発言日時に基づき年度別に整理することで時系列データとして扱う。個人単位のパネルデータではなく、議会発言の横断的集合を対象とする二次利用データである。画像・音声・センサーデータは含まれない。</td></tr>
+<tr><th>4-3　その他、保有している研究データについて、取得先や取得手法について可能な範囲で教えてください。 In addition to the above, please describe, to the extent possible, the sources and collection methods of any other research data you possess.</th><td>本研究に関連して保有する独自データは特にない。分析対象は国会会議録検索システムAPIにより取得する公開データに限定する。</td></tr>
+<tr><th>4-4　下記を参考に、データの種類等を可能な範囲で教えてください。  観測データ / 実験データ / 測定データ  画像 / 音声 / 動画 / テキスト / 時系列  数値シミュレーション結果  センサーデータ        行動データ / 社会調査・アンケートデータ　（横断的にデータ取得/縦断的：一人物に複数点）  文献データ / デジタルアーカイブ  その他
+Please descr...</th><td>本研究で用いるデータは、国会会議録検索システムAPIにより取得する公開テキストデータであり、観察データに該当する。主たるデータ形式はテキストであり、発言日時に基づき年度別に整理することで時系列データとして扱う。データはデジタルアーカイブに属する二次利用データであり、実験データ・数値シミュレーション結果・センサーデータ・画像・音声データ等は含まれない。</td></tr>
+<tr><th>4-5　データの基本情報（サンプル数、説明変数、目的変数）について教えてください。Please provide basic information about the data, such as the number of samples, explanatory variables (independent variables), and target variables (depend...</th><td>本研究のサンプル数は、公的年金に関する国会発言2,143件（実測値）である。基本単位は発言単位のテキストデータであり、日付、会議名、発言者、所属会派等のメタデータを含む。本研究は教師あり学習による予測モデル構築を目的とするものではなく、議論構造の記述的分析を行うため、明確な目的変数（従属変数）は設定しない。主な分析対象は文書埋め込みにより生成される意味ベクトルであり、年度別に集約した意味空間上の分布差異を分析する。</td></tr>
+<tr><th>4-6　これまでデータへ適応した解析手法や統計手法・モデル等があれば教えてください。Please describe any analytical methods, statistical techniques, or models that have been applied to the data so far, if applicable.</th><td>本申請に当たり、国会会議録APIを用いて公的年金関連発言2,143件（2010–2025年）のデータ取得および件数確認を実施した。年度別発言数の基礎集計を行い、例えば2010年79件、2014年117件、2019年169件、2020年102件であることを確認した。</td></tr>
+<tr><th>4-7　データの信頼性について次の点を記述してください。例）・測定精度/誤差範囲/ノイズがあればその特徴、もしくは、専門家によるアノテーションが必要かどうか　Please describe the reliability of the data, addressing the following points as appropriate. Examples:  Measurement a...</th><td>国会会議録データは、国立国会図書館が公開する公式記録であり、制度的に整備された公的アーカイブに基づくものである。ただし、議事録特有の定型文や議事進行発言、同一趣旨の反復発言といった構造的要素や、記録過程に起因する誤字脱字が含まれる可能性がある。そのため、分析に際しては発言者情報および発言内容に基づき不要部分の除外等の前処理を行う。専門家によるアノテーションは必須とはしないが、必要に応じて政策文脈に関する確認を行うとともに、収集データについてはクロスチェックを実施し、信頼性およびデータの整合性を担保する。</td></tr>
+<tr><th>4-8　データの偏りについて次の点を記述してください。例・属性の偏りがあればどんなものか/サンプルサイズの偏りがあればどんなものか/データの揺らぎがあればどんなものか　Please describe any biases present in the data, addressing the following points as appropriate. Examples:  Types...</th><td>国会会議録データは公開記録に基づくものであるが、年度ごとの発言件数には差があり（2010年79件、2014年117件、2019年169件、2020年102件）、政策論点の社会的関心や法改正動向等に応じて発言数が変動する可能性がある。また、発言機会は議会構造や政党構成の影響を受けるため、属性上の偏りが生じ得る。本研究では、年度別件数を明示した上で距離指標による相対的比較を行い、件数差による影響を考慮する。</td></tr>
+<tr><th>4-9　データの構造・複雑性について以下から教えてください。（複数選択可） Please indicate the structure and complexity of the data by selecting from the options below. (Multiple answers allowed)</th><td>多変量性 Multivariate;階層構造 Hierarchical structure;時系列データ Time-series data;次元性 High dimensionality;</td></tr>
+</table>
+</body>
+</html>

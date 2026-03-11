@@ -2,7 +2,7 @@ import json
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-
+import streamlit.components.v1 as components
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -60,6 +60,14 @@ def read_csv_from_path(path: Path) -> pd.DataFrame:
 def read_csv_from_uploaded(uploaded) -> pd.DataFrame:
     return pd.read_csv(uploaded)
 
+def read_html_preview(preview_id: str) -> str:
+    preview_id = re.sub(r"[^\w\-]", "", str(preview_id or ""))
+    if not preview_id:
+        return ""
+    html_path = DATA_DIR / "survey_html" / preview_id / "index.html"
+    if not html_path.exists():
+        return ""
+    return html_path.read_text(encoding="utf-8", errors="ignore")
 
 def get_nested(d: Dict[str, Any], path: str) -> Any:
     cur: Any = d
@@ -650,10 +658,24 @@ for i, r in enumerate(rows, start=1):
 
 df = pd.DataFrame(records)
 
-if not map_df.empty and "id" in map_df.columns and "url" in map_df.columns:
-    df = df.merge(map_df[["id", "url"]], on="id", how="left")
+if not map_df.empty and "id" in map_df.columns:
+    merge_cols = ["id"]
+    for c in ["url", "streamlit_preview_url", "html_rel_path"]:
+        if c in map_df.columns:
+            merge_cols.append(c)
+
+    df = df.merge(map_df[merge_cols], on="id", how="left")
 else:
     df["url"] = ""
+    df["streamlit_preview_url"] = ""
+    df["html_rel_path"] = ""
+
+if "url" not in df.columns:
+    df["url"] = ""
+if "streamlit_preview_url" not in df.columns:
+    df["streamlit_preview_url"] = ""
+if "html_rel_path" not in df.columns:
+    df["html_rel_path"] = ""
 
 ai_df = df[df["role_norm"] == "ai_researcher"].reset_index(drop=True)
 other_df = df[df["role_norm"] == "other_field_researcher"].reset_index(drop=True)
@@ -936,14 +958,22 @@ with stylable_container(
         st.markdown(f"**研究者区分 / Role**<br>{query_label}", unsafe_allow_html=True)
 
     with col3:
+        preview_url = row.get("streamlit_preview_url", "")
         url = row.get("url", "")
+
+        links = []
+        if pd.notna(preview_url) and str(preview_url).strip():
+            links.append(f'<a href="{preview_url}" target="_blank">アプリ内表示 / Preview</a>')
         if pd.notna(url) and str(url).strip():
+            links.append(f'<a href="{url}" target="_blank">リンク / Open</a>')
+
+        if links:
             st.markdown(
-                f'**アンケートURL / Survey URL**<br><a href="{url}" target="_blank">見る / Open</a>',
+                f'**アンケート表示 / Survey Preview**<br>{" ｜ ".join(links)}',
                 unsafe_allow_html=True
             )
         else:
-            st.markdown("**アンケートURL / Survey URL**<br>なし / None", unsafe_allow_html=True)
+            st.markdown("**アンケート表示 / Survey Preview**<br>なし / None", unsafe_allow_html=True)
 
     with col4:
         trios = row.get("matched_url", "")
@@ -969,6 +999,12 @@ with stylable_container(
         embed_text,
         height=300
     )
+    preview_html = read_html_preview(row.get("id", ""))
+    if preview_html:
+        st.markdown("#### アンケートHTML表示 / Survey HTML Preview")
+        components.html(preview_html, height=700, scrolling=True)
+    else:
+        st.info("この人物のHTMLプレビューはまだ生成されていません。 / HTML preview for this person has not been generated yet.")
 
 st.write("### 現在の重み / Current Weights")
 st.write(
@@ -1035,9 +1071,19 @@ show_cols = [
     "similarity_b", "similarity_c",
     "similarity",
     "id", "name", "affiliation", "position", "research_field",
-    "summary", "url", "matched_url"
+    "summary", "streamlit_preview_url", "matched_url"
 ]
 res_show = res[show_cols].copy()
+download_df = res_show.copy()
+
+if "streamlit_preview_url" in download_df.columns:
+    download_df = download_df.rename(columns={"streamlit_preview_url": "survey_preview_url"})
+
+if "url" in download_df.columns and "survey_preview_url" not in download_df.columns:
+    download_df["survey_preview_url"] = download_df["url"]
+
+csv_bytes = download_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
+json_bytes = download_df.to_json(orient="records", force_ascii=False, indent=2).encode("utf-8")
 
 st.subheader(f"検索結果 / Results list （推薦 / Recommendation : {doc_label})　　件数 / Count : {len(res_show)}")
 st.caption(f"表示 / Direction : {query_label} → {doc_label}")
@@ -1048,7 +1094,7 @@ try:
         use_container_width=True,
         height=700,
         column_config={
-            "url": st.column_config.LinkColumn("アンケートURL / Survey URL", display_text="open"),
+            "streamlit_preview_url": st.column_config.LinkColumn("アンケート表示 / Survey Preview", display_text="open"),
             "matched_url": st.column_config.LinkColumn("TRIOS URL", display_text="open"),
             "similarity_a": st.column_config.NumberColumn("A", format="%.4f"),
             "matched_words": st.column_config.TextColumn("一致ワード / Matched Words"),
@@ -1071,7 +1117,6 @@ def safe_filename(s: str) -> str:
 
 picked_name = safe_filename(str(row.get("name", "")))
 
-csv_bytes = res_show.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
 st.download_button(
     "結果（全件）をCSVでダウンロード / Download all results as CSV",
     data=csv_bytes,
@@ -1079,7 +1124,6 @@ st.download_button(
     mime="text/csv",
 )
 
-json_bytes = res_show.to_json(orient="records", force_ascii=False, indent=2).encode("utf-8")
 st.download_button(
     "結果（全件）をJSONでダウンロード / Download all results as JSON",
     data=json_bytes,

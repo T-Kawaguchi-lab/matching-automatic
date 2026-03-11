@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R0078</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 16px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid #ddd;padding:10px;vertical-align:top}
+th{background:#f5f5f5;width:360px;text-align:left}
+td{white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body>
+<table>
+<tr><th>氏名　Name</th><td>堀江秀</td></tr>
+<tr><th>メール</th><td>horie.shu.gp@u.tsukuba.ac.jp</td></tr>
+<tr><th>　所属（教員組織）※学生は指導教員の所属を選択　/Affiliation (Faculty/Organization)</th><td>計算科学研究センター/Center for Computational Sciences</td></tr>
+<tr><th>専門分野/ Research Field </th><td>天文学、生体光イメージング</td></tr>
+<tr><th>以下の項目から選んでください。 Please select from the options below.</th><td>教員・研究員/ Faculty Member / Researcher</td></tr>
+<tr><th>職位 Position </th><td>研究員</td></tr>
+<tr><th>2－1研究へのAIの活用経験と意識（当てはまるものを選んでください）/Experience with and Perceptions of AI Utilization in Research</th><td>AIを活用して研究を実施したことがある/I have conducted research using AI.</td></tr>
+<tr><th>3-1　AI を活用することで推進したい（推進した）研究テーマを回答ください。（1テーマ40字程度）Please describe the research theme(s) you would like to promote (or have promoted) by utilizing AI.</th><td>①生成モデルによる銀河の物理量推定
+②機械学習による生体内の異常部位推定</td></tr>
+<tr><th>3-2　AIを活用することで解決したい（解決した）学術的課題の概要を教えてください（分野外の専門家がわかるように。1テーマ100〜300字程度）Please provide an overview of the academic challenge(s) you would like to address (or have addressed) by utilizing AI.</th><td>①生成モデルによる銀河の物理量推定
+銀河が放射する電磁波スペクトルには、星形成活動やガス量などの物理情報が反映されている。しかし、異なる物理条件が類似したスペクトルを生む場合があり、スペクトルから物理量を一意に決定することは難しい。本研究では生成モデルを用い、観測スペクトルを条件として整合的な物理量を確率的に出力する。現在は星形成活動の歴史の推定に取り組んでおり、将来的には銀河の三次元構造などへの拡張を目指す。
+
+②機械学習による生体内の異常部位推定
+生体表面に近赤外光を照射すると、内部で散乱・吸収を繰り返した光が再び表面から検出され、その信号には内部の異常部位に関する情報が含まれる。通常、この光伝播を解析するには輻射輸送方程式を数値的に解く必要があり、計算コストが非常に高い。本研究では数値シミュレーション結果を学習したニューラルネットワークにより光波形を高速に予測し、マルコフ連鎖モンテカルロ（MCMC）法と組み合わせて異常部位を効率的に推定する。将来的には観測波形から生体内部の画像再構成をすることを目指している。</td></tr>
+<tr><th>3-3　以下内容がわかる場合は具体的に教えてください。１．研究テーマで AI が特に有効または改善ができる部分はどこ（何）でしょうか？２．AIを活用することによって、研究分野にどのようなインパクトをあたえられるでしょうか？If possible, please provide specific details on the following points: 1Which part(s) ...</th><td>①生成モデルによる銀河の物理量推定
+1. AIが有効、改善できる部分
+同様のスペクトルが観測されたとしても、対応する銀河の物理量は大きく異なる可能性がある。これは、銀河内部の構造や星形成・放射輸送などの物理過程が複雑であり、複数の物理条件が似たスペクトルを生み出し得るためである。そのため、スペクトルから物理量を一意に決定することは本質的に困難な逆問題となる。そこで本研究では、物理量を厳密に一つに定めるのではなく、生成モデルを用いて、あるスペクトルに整合する物理量の分布を確率的に推定する手法を採用する。これにより、観測データから考えられる複数の物理的解を体系的に評価できると期待している。
+2. AI活用によるインパクト
+銀河のスペクトルは観測可能な物理量であり、その中には銀河の物理状態に関する情報が原理的に含まれている。しかし、銀河の構造や内部で起こる物理過程が非常に複雑であるため、スペクトルからすべての物理量を完全に復元することは極めて困難である。本研究では、スペクトルを条件として生成モデルを用い、銀河の物理量を推定する手法の確立を目指す。これが実現すれば、銀河研究を新たな段階へと発展させることが可能となる。例えば、現在取り組んでいる銀河の星形成史の推定では、宇宙誕生から現在に至るまでの星形成活動の時間発展を推定している。これにより、現在の宇宙における銀河の観測データから、宇宙初期での銀河の星形成活動を推定できると期待される。さらに、観測的には銀河は距離が遠いため二次元的な情報しか得られないが、三次元構造を推定できれば、理論的な銀河形成モデルに対して強い制限を与えることが可能となる。生成モデルを用いたAI解析により、観測可能量と理論的銀河研究を直接結びつけられる点に、本研究の大きな意義があると考えている。
+
+②機械学習による生体内の異常部位推定
+1. AIが有効、改善できる部分
+生体内では近赤外光の散乱が強く、このときの光の伝播を記述する輻射輸送方程式には一般的な解析解が存在しない。そのため数値的に解く必要があり、1つのモデル計算に多大な計算時間を要する。そこで本研究では、あらかじめ多数のモデルを数値計算によって作成し、異常部位のパラメータと生体表面から出射される光波形との関係をニューラルネットワークに学習させる。これにより、学習に含まれていないパラメータに対しても、光波形を高速に予測することが可能となる。さらに、このモデルをMCMC法と組み合わせることで、異常部位のパラメータ推定を効率的に行うことができる。加えて、観測された光波形から生体内部構造をニューラルネットワークによって高速に画像再構成する手法も臨床への応用に有効であると期待している。
+2. AI活用によるインパクト
+生体内部の異常部位の物理量と、表面で観測される光波形との間には強い非線形かつ高次元の関係が存在する。本研究では、この複雑な関係をニューラルネットワークによって高速に近似できる点に大きな意義がある。さらに、これをMCMC法と組み合わせることで、従来は計算時間の制約により困難であった異常部位の推定を、現実的な時間内で実行可能にする。加えて、観測波形から生体内部構造を画像として再構成できれば、異常部位を視覚的に把握することが可能となり、診断支援など臨床応用への展開も期待される。AIの活用により、高精度・高速な逆問題解析を実現し、基礎研究から臨床応用までを橋渡しする点に本研究のインパクトがある。</td></tr>
+<tr><th>3-4 現時点で AI for Science チャレンジ型に応募したいと思いますか？At this point, would you like to apply for the AI for Science Challenge–type program?</th><td>応募したい　I would like to apply.</td></tr>
+<tr><th>3-5 　ご自身の研究活動にAIを導入・活用するときの課題があれば教えてください。支援構築の参考にします。（複数選択可）If you have any challenges or concerns regarding the introduction or use of AI in your own research activities, please let us know.</th><td>相談できる相手がいない/AI専門研究者への伝手がない　I do not have anyone to consult with / I have no connections to AI specialist researchers.;自分の専門分野領域でAI活用がどう評価されるかわからない　I am unsure how the use of AI will be evaluated within my own research field.;</td></tr>
+<tr><th>3-6　上記テーマのためのデータは既に取得済みですか？　Have the data for the above research theme already been collected?</th><td>データは既に取得済み、取得途中・公開データ・パブリックデータを活用予定 / The data have already been collected.　The data are currently being collected, or we plan to use existing open or public datasets.</td></tr>
+<tr><th>4-1　今後AI活用したい（これまでAI活用した）研究データについて取得先や収集手法について可能な範囲で教えてください。 Please describe, to the extent possible, the sources and collection methods of the research data that you would like to use (or have us...</th><td>①生成モデルによる銀河の物理量推定
+数値シミュレーションの公開データ
+②機械学習による生体内の異常部位推定
+自ら行う数値シミュレーション</td></tr>
+<tr><th>4-2　以下を参考にデータの種類等を可能な範囲で教えてください。  観測データ / 実験データ / 測定データ  画像 / 音声 / 動画 / テキスト / 時系列  数値シミュレーション結果  センサーデータ        行動データ / 社会調査・アンケートデータ　（横断的にデータ取得/縦断的：一人物に複数点）  文献データ / デジタルアーカイブ  その他
+
+Please descr...</th><td>数値シミュレーション結果</td></tr>
+<tr><th>4-3　その他、保有している研究データについて、取得先や取得手法について可能な範囲で教えてください。 In addition to the above, please describe, to the extent possible, the sources and collection methods of any other research data you possess.</th><td>自ら行う数値シミュレーションまたは数値シミュレーションの公開データ</td></tr>
+<tr><th>4-4　下記を参考に、データの種類等を可能な範囲で教えてください。  観測データ / 実験データ / 測定データ  画像 / 音声 / 動画 / テキスト / 時系列  数値シミュレーション結果  センサーデータ        行動データ / 社会調査・アンケートデータ　（横断的にデータ取得/縦断的：一人物に複数点）  文献データ / デジタルアーカイブ  その他
+Please descr...</th><td>数値シミュレーション結果</td></tr>
+<tr><th>4-5　データの基本情報（サンプル数、説明変数、目的変数）について教えてください。Please provide basic information about the data, such as the number of samples, explanatory variables (independent variables), and target variables (depend...</th><td>①生成モデルによる銀河の物理量推定
+サンプル数：数万程度
+説明変数：銀河のスペクトル
+目的変数：銀河の星形成史、銀河の3次元画像
+
+②機械学習による生体内の異常部位推定
+サンプル数：3000個
+説明変数：異常部位パラメータ（位置、サイズ等）、波形データ
+目的変数：波形、生体内部3次元画像
+</td></tr>
+<tr><th>4-6　これまでデータへ適応した解析手法や統計手法・モデル等があれば教えてください。Please describe any analytical methods, statistical techniques, or models that have been applied to the data so far, if applicable.</th><td>初等的な統計解析（平均、中央値、相関など）、ニューラルネットワーク（DNN, CNN, UNet, 拡散モデル）</td></tr>
+<tr><th>4-7　データの信頼性について次の点を記述してください。例）・測定精度/誤差範囲/ノイズがあればその特徴、もしくは、専門家によるアノテーションが必要かどうか　Please describe the reliability of the data, addressing the following points as appropriate. Examples:  Measurement a...</th><td>学習データは数値シミュレーションをもとに作成しているので、データの信頼性は数値誤差程度</td></tr>
+<tr><th>4-8　データの偏りについて次の点を記述してください。例・属性の偏りがあればどんなものか/サンプルサイズの偏りがあればどんなものか/データの揺らぎがあればどんなものか　Please describe any biases present in the data, addressing the following points as appropriate. Examples:  Types...</th><td>①生成モデルによる銀河の物理量推定
+重い銀河の数は少なく、比較的軽い銀河が多い
+
+②機械学習による生体内の異常部位推定
+ラテン超方格法でサンプリングして学習データを作成しているので、偏りは少ない</td></tr>
+<tr><th>4-9　データの構造・複雑性について以下から教えてください。（複数選択可） Please indicate the structure and complexity of the data by selecting from the options below. (Multiple answers allowed)</th><td>線形・非線形 Linear / Nonlinear;多変量性 Multivariate;階層構造 Hierarchical structure;時系列データ Time-series data;次元性 High dimensionality;</td></tr>
+</table>
+</body>
+</html>

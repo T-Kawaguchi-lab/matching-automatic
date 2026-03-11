@@ -18,9 +18,8 @@ APP_DIR = ROOT / "matching_app"
 STRUCT_SCRIPT = STRUCT_DIR / "build_structured_cards.py"
 TRIOS_SCRIPT = TRIOS_DIR / "trios_enrich_jsonl.py"
 
-# 今は無いので、将来ここに置く前提
-URL_SCRIPT = ROOT / "automation" / "url_builder_real.py"
-THESIS_SCRIPT = ROOT / "automation" / "thesis_enricher_real.py"
+URL_SCRIPT = ROOT / "url_builder" / "optional_url_builder.py"
+THESIS_SCRIPT = ROOT / "thesis_enrich" / "add_masters_thesis_titles.py"
 
 STRUCT_OUT_JSONL = ROOT / "tmp_structured.jsonl"
 STRUCT_OUT_XLSX = ROOT / "tmp_structured.xlsx"
@@ -29,6 +28,7 @@ THESIS_OUT_JSONL = ROOT / "tmp_thesis_enriched.jsonl"
 
 FINAL_JSONL = DATA_DIR / "researcher_latest.jsonl"
 FINAL_URL_CSV = DATA_DIR / "url_latest.csv"
+FINAL_SURVEY_HTML_DIR = ROOT / "data" / "survey_html"
 STATUS_JSON = DATA_DIR / "pipeline_status.json"
 
 
@@ -94,38 +94,28 @@ def run_structured_generation(status):
 
 
 def run_optional_url_generation(status):
-    if URL_SCRIPT.exists():
-        run(
-            [
-                sys.executable,
-                str(URL_SCRIPT),
-                "--input-xlsx", str(INCOMING_XLSX),
-                "--output-csv", str(FINAL_URL_CSV),
-            ],
-            cwd=ROOT / "automation"
-        )
-        status["url_generation"] = {
-            "status": "ok",
-            "mode": "real_script",
-            "output_csv": str(FINAL_URL_CSV),
-            "time": now_iso(),
-        }
-    else:
-        # 仮ファイルを作る
-        FINAL_URL_CSV.write_text(
-            "name,url\nDUMMY_USER,https://example.com/form\n",
-            encoding="utf-8"
-        )
+    if not URL_SCRIPT.exists():
+        raise FileNotFoundError(f"URL生成スクリプトがありません: {URL_SCRIPT}")
 
-        status["url_generation"] = {
-            "status": "skipped",
-            "mode": "placeholder",
-            "reason": "URL script not found",
-            "output_csv": str(FINAL_URL_CSV),
-            "time": now_iso(),
-        }
+    run(
+        [
+            sys.executable,
+            str(URL_SCRIPT),
+            "--input-xlsx", str(INCOMING_XLSX),
+            "--output-csv", str(FINAL_URL_CSV),
+            "--output-html-dir", str(FINAL_SURVEY_HTML_DIR),
+            "--streamlit-base-url", "",
+        ],
+        cwd=ROOT / "url_builder"
+    )
 
-        log("[SKIP] URL生成スクリプトが無いため仮の url_latest.csv を作りました")
+    status["url_generation"] = {
+        "status": "ok",
+        "mode": "local_streamlit_preview",
+        "output_csv": str(FINAL_URL_CSV),
+        "output_html_dir": str(FINAL_SURVEY_HTML_DIR),
+        "time": now_iso(),
+    }
 
 def run_trios(status):
     if not TRIOS_SCRIPT.exists():
@@ -155,9 +145,10 @@ def run_optional_thesis(status):
                 sys.executable,
                 str(THESIS_SCRIPT),
                 "--input-jsonl", str(TRIOS_OUT_JSONL),
+                "--csv", str(ROOT / "thesis_enrich" / "masters_thesis.csv"),
                 "--output-jsonl", str(THESIS_OUT_JSONL),
             ],
-            cwd=ROOT / "automation"
+            cwd=ROOT / "thesis_enrich"
         )
         shutil.copy2(THESIS_OUT_JSONL, FINAL_JSONL)
         status["thesis_enrich"] = {
@@ -171,12 +162,11 @@ def run_optional_thesis(status):
         status["thesis_enrich"] = {
             "status": "skipped",
             "mode": "placeholder",
-            "reason": "thesis_enricher_real.py not found",
+            "reason": "add_masters_thesis_titles.py not found",
             "output_jsonl": str(FINAL_JSONL),
             "time": now_iso(),
         }
         log("[SKIP] 修論追加スクリプトが未配置のため、TRIOS出力をそのまま最終JSONLにしました。")
-
 
 def copy_to_app_data(status):
     app_data = APP_DIR / "data"
@@ -186,12 +176,19 @@ def copy_to_app_data(status):
     shutil.copy2(FINAL_URL_CSV, app_data / FINAL_URL_CSV.name)
     shutil.copy2(STATUS_JSON, app_data / STATUS_JSON.name)
 
+    app_survey_dir = app_data / "survey_html"
+    if app_survey_dir.exists():
+        shutil.rmtree(app_survey_dir)
+    if FINAL_SURVEY_HTML_DIR.exists():
+        shutil.copytree(FINAL_SURVEY_HTML_DIR, app_survey_dir)
+
     status["app_data_sync"] = {
         "status": "ok",
         "copied": [
             str(app_data / FINAL_JSONL.name),
             str(app_data / FINAL_URL_CSV.name),
             str(app_data / STATUS_JSON.name),
+            str(app_survey_dir),
         ],
         "time": now_iso(),
     }
