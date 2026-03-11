@@ -282,6 +282,7 @@ def exact_match_words_between_a(query_items: List[str], doc_items: List[str]) ->
     matched_keys = sorted(set(q_map.keys()) & set(d_map.keys()))
     return [q_map[k] for k in matched_keys]
 
+
 def _esc_html(v):
     import html
     if pd.isna(v):
@@ -323,6 +324,24 @@ def build_results_table_html(df: pd.DataFrame) -> str:
         "matched_url": "TRIOS URL",
     }
 
+    # 列ごとの class を付ける
+    col_class_map = {
+        "rank": "col-rank",
+        "similarity_a": "col-num",
+        "matched_words": "col-words",
+        "similarity_b": "col-num",
+        "similarity_c": "col-num",
+        "similarity": "col-num",
+        "id": "col-id",
+        "name": "col-name",
+        "affiliation": "col-affiliation",
+        "position": "col-position",
+        "research_field": "col-field",
+        "summary": "col-summary",
+        "streamlit_preview_url": "col-link",
+        "matched_url": "col-link",
+    }
+
     html_rows = []
 
     for _, row in df.iterrows():
@@ -350,11 +369,15 @@ def build_results_table_html(df: pd.DataFrame) -> str:
             else:
                 cell = _esc_html(val).replace("\n", "<br>")
 
-            tds.append(f"<td>{cell}</td>")
+            css_class = col_class_map.get(c, "")
+            tds.append(f'<td class="{css_class}">{cell}</td>')
 
         html_rows.append("<tr>" + "".join(tds) + "</tr>")
 
-    thead = "<tr>" + "".join(f"<th>{_esc_html(headers[c])}</th>" for c in cols) + "</tr>"
+    thead = "<tr>" + "".join(
+        f'<th class="{col_class_map.get(c, "")}">{_esc_html(headers[c])}</th>'
+        for c in cols
+    ) + "</tr>"
     tbody = "".join(html_rows)
 
     return f"""
@@ -370,41 +393,92 @@ html, body {{
     background: white;
     font-family: sans-serif;
 }}
+
 .results-table-wrap {{
+    width: 100%;
     overflow-x: auto;
+    overflow-y: auto;
     max-height: 700px;
     border: 1px solid #ddd;
     border-radius: 8px;
+    background: white;
 }}
+
 table.results-table {{
     border-collapse: collapse;
-    width: 100%;
+    table-layout: auto;
+    width: max-content;
+    min-width: 2200px;   /* ← 横幅を十分に広くする */
     font-size: 14px;
     background: white;
 }}
-.results-table th, .results-table td {{
+
+.results-table th,
+.results-table td {{
     border-bottom: 1px solid #eee;
     padding: 8px 10px;
     text-align: left;
     vertical-align: top;
-    white-space: normal;
-    word-break: break-word;
+    white-space: nowrap;     /* ← 基本は折り返さない */
+    word-break: normal;      /* ← 縦文字っぽく割れないようにする */
+    overflow-wrap: normal;
 }}
+
 .results-table th {{
     position: sticky;
     top: 0;
     background: #f7f7f7;
-    z-index: 1;
+    z-index: 2;
 }}
+
 .results-table tr:hover {{
     background: #fafafa;
 }}
+
 a {{
     color: #1f77b4;
     text-decoration: none;
 }}
 a:hover {{
     text-decoration: underline;
+}}
+
+/* 列ごとの幅調整 */
+.col-rank {{
+    min-width: 90px;
+}}
+.col-num {{
+    min-width: 90px;
+}}
+.col-words {{
+    min-width: 180px;
+}}
+.col-id {{
+    min-width: 90px;
+}}
+.col-name {{
+    min-width: 120px;
+}}
+.col-affiliation {{
+    min-width: 260px;
+}}
+.col-position {{
+    min-width: 100px;
+}}
+.col-field {{
+    min-width: 180px;
+}}
+.col-link {{
+    min-width: 150px;
+}}
+
+/* summary だけは広めにして折り返しOK */
+.col-summary {{
+    min-width: 700px;
+    max-width: 900px;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }}
 </style>
 </head>
@@ -418,7 +492,6 @@ a:hover {{
 </body>
 </html>
 """
-
 def build_embedding_texts_three_axes(r: Dict[str, Any]) -> Tuple[str, str, str, str]:
     """
     役割ごとに指定項目のみを使い、E5用の入力テキストを3本作る：
