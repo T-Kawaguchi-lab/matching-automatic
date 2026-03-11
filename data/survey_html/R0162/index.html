@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R0162</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid #ddd;padding:10px;vertical-align:top}
+th{background:#f5f5f5;width:360px;text-align:left}
+td{white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body>
+<table>
+<tr><th>氏名　Name</th><td>大野浩史</td></tr>
+<tr><th>メール</th><td>ono.hiroshi.fw@u.tsukuba.ac.jp</td></tr>
+<tr><th>　所属（教員組織）※学生は指導教員の所属を選択　/Affiliation (Faculty/Organization)</th><td>計算科学研究センター/Center for Computational Sciences</td></tr>
+<tr><th>専門分野/ Research Field </th><td>計算素粒子物理学、格子QCD</td></tr>
+<tr><th>以下の項目から選んでください。 Please select from the options below.</th><td>教員・研究員/ Faculty Member / Researcher</td></tr>
+<tr><th>職位 Position </th><td>助教</td></tr>
+<tr><th>2－1研究へのAIの活用経験と意識（当てはまるものを選んでください）/Experience with and Perceptions of AI Utilization in Research</th><td>AIを活用して研究を実施したことがある/I have conducted research using AI.</td></tr>
+<tr><th>3-1　AI を活用することで推進したい（推進した）研究テーマを回答ください。（1テーマ40字程度）Please describe the research theme(s) you would like to promote (or have promoted) by utilizing AI.</th><td>格子QCD計算におけるモンテカルロサンプル生成および物理量計算の高速化</td></tr>
+<tr><th>3-2　AIを活用することで解決したい（解決した）学術的課題の概要を教えてください（分野外の専門家がわかるように。1テーマ100〜300字程度）Please provide an overview of the academic challenge(s) you would like to address (or have addressed) by utilizing AI.</th><td>格子QCD計算では、乱数を用いて素粒子のふるまいを再現するモンテカルロシミュレーションを行うが、現実に近い物理条件へと設定を近づけるほど、状態の更新に要する時間が急激に増大する「クリティカルスローダウン」が発生する。このため、統計的に十分なデータを得るまでに膨大な計算時間を要することが大きな障害となっている。さらに、物理量を求める過程ではディラック行列と呼ばれる巨大な疎行列に対する連立方程式を何度も解く必要があり、その計算コストがシミュレーション全体の大半を占める。これら二つの要因が、計算の大規模化および高精度化を進める上での深刻なボトルネックとなっており、解決に向けて現在研究を実施中である。</td></tr>
+<tr><th>3-3　以下内容がわかる場合は具体的に教えてください。１．研究テーマで AI が特に有効または改善ができる部分はどこ（何）でしょうか？２．AIを活用することによって、研究分野にどのようなインパクトをあたえられるでしょうか？If possible, please provide specific details on the following points: 1Which part(s) ...</th><td>1. 格子QCD計算におけるモンテカルロサンプルの生成は、AI 分野における画像生成と似ており、同様の AI 技術、例えば normalizing flow や diffusion model 等が有効である。また、物理量計算の高速化は、計算コストの大きい物理量をコストの小さい物理量から推定することで実現できる。その際、一般に具体的な関数形を決めることは難しいので、AI を用いた推定が力を発揮する。さらに、計算のボトルネックとなっているディラック行列に対する連立方程式を効率よく解けるようにすることが非常に重要であるが、そのためには性能の高い前処理を開発する必要がある。これは近似的な逆行列を作ることと等価であるが、その設計に AI を活用することが有効である。
+
+2. 上記のことが実現できれば、これまで計算コストの面で精度をあきらめなければならなかった問題や、そもそも計算自体が困難であった問題にアプローチすることができるようになり、格子QCD計算の研究が様々な側面で加速すると考えられる。たとえば、実験と理論を高精度で比較することで、これまで発見されていなかった新たな物理法則を発見することが重要なテーマの一つであるが、そのためには理論計算の精度をより高める必要がある。AI の活用が、そのような重要なテーマの推進に大きなインパクトをあたえることになる。</td></tr>
+<tr><th>3-4 現時点で AI for Science チャレンジ型に応募したいと思いますか？At this point, would you like to apply for the AI for Science Challenge–type program?</th><td>応募したい　I would like to apply.</td></tr>
+<tr><th>3-6　上記テーマのためのデータは既に取得済みですか？　Have the data for the above research theme already been collected?</th><td>データは既に取得済み、取得途中・公開データ・パブリックデータを活用予定 / The data have already been collected.　The data are currently being collected, or we plan to use existing open or public datasets.</td></tr>
+<tr><th>4-1　今後AI活用したい（これまでAI活用した）研究データについて取得先や収集手法について可能な範囲で教えてください。 Please describe, to the extent possible, the sources and collection methods of the research data that you would like to use (or have us...</th><td>これまでの自分の研究で生成したデータに加え、共同研究者が生成したデータや、公開データが取得可能である。格子QCD分野では、International Lattice Data Grid や Japan Lattice Data Grid 呼ばれる、データ共有・公開のためのインフラがあり、これを用いてデータの共有や公開が可能である。なお、私本人は Japan Lattice Data Grid の管理グループ代表をしている。</td></tr>
+<tr><th>4-2　以下を参考にデータの種類等を可能な範囲で教えてください。  観測データ / 実験データ / 測定データ  画像 / 音声 / 動画 / テキスト / 時系列  数値シミュレーション結果  センサーデータ        行動データ / 社会調査・アンケートデータ　（横断的にデータ取得/縦断的：一人物に複数点）  文献データ / デジタルアーカイブ  その他
+
+Please descr...</th><td>数値シミュレーション結果</td></tr>
+<tr><th>4-3　その他、保有している研究データについて、取得先や取得手法について可能な範囲で教えてください。 In addition to the above, please describe, to the extent possible, the sources and collection methods of any other research data you possess.</th><td>4-1 に記載。</td></tr>
+<tr><th>4-4　下記を参考に、データの種類等を可能な範囲で教えてください。  観測データ / 実験データ / 測定データ  画像 / 音声 / 動画 / テキスト / 時系列  数値シミュレーション結果  センサーデータ        行動データ / 社会調査・アンケートデータ　（横断的にデータ取得/縦断的：一人物に複数点）  文献データ / デジタルアーカイブ  その他
+Please descr...</th><td>数値シミュレーション結果</td></tr>
+<tr><th>4-5　データの基本情報（サンプル数、説明変数、目的変数）について教えてください。Please provide basic information about the data, such as the number of samples, explanatory variables (independent variables), and target variables (depend...</th><td>サンプル数: ひとつのパラメータあたり O(100) - O(1000) 程度
+説明変数: 4次元正方格子上の各リンク (格子点座標と方向)
+目的変数: ランダムな SU(3) 行列</td></tr>
+<tr><th>4-6　これまでデータへ適応した解析手法や統計手法・モデル等があれば教えてください。Please describe any analytical methods, statistical techniques, or models that have been applied to the data so far, if applicable.</th><td>Gradient Boosting Decision Tree
+Sparse modeling
+CNN
+注意機構</td></tr>
+<tr><th>4-7　データの信頼性について次の点を記述してください。例）・測定精度/誤差範囲/ノイズがあればその特徴、もしくは、専門家によるアノテーションが必要かどうか　Please describe the reliability of the data, addressing the following points as appropriate. Examples:  Measurement a...</th><td>倍精度程度の数値誤差</td></tr>
+<tr><th>4-8　データの偏りについて次の点を記述してください。例・属性の偏りがあればどんなものか/サンプルサイズの偏りがあればどんなものか/データの揺らぎがあればどんなものか　Please describe any biases present in the data, addressing the following points as appropriate. Examples:  Types...</th><td>モンテカルロサンプリングのパラーメータに依存したランダムな統計揺らぎ</td></tr>
+<tr><th>4-9　データの構造・複雑性について以下から教えてください。（複数選択可） Please indicate the structure and complexity of the data by selecting from the options below. (Multiple answers allowed)</th><td>線形・非線形 Linear / Nonlinear;多変量性 Multivariate;時系列データ Time-series data;次元性 High dimensionality;マルチモーダル Multimodal;</td></tr>
+</table>
+</body>
+</html>

@@ -1,29 +1,28 @@
 {
-  "started_at": "2026-03-10T07:31:08.373960+00:00",
+  "started_at": "2026-03-11T10:01:46.610508+00:00",
   "input_xlsx": "/home/runner/work/matching-automatic/matching-automatic/incoming/forms_latest.xlsx",
   "structured_generation": {
     "status": "ok",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/tmp_structured.jsonl",
     "output_xlsx": "/home/runner/work/matching-automatic/matching-automatic/tmp_structured.xlsx",
-    "time": "2026-03-10T07:31:10.348025+00:00"
+    "time": "2026-03-11T10:01:48.421574+00:00"
   },
   "url_generation": {
-    "status": "skipped",
-    "mode": "placeholder",
-    "reason": "URL script not found",
+    "status": "ok",
+    "mode": "local_streamlit_preview",
     "output_csv": "/home/runner/work/matching-automatic/matching-automatic/data/url_latest.csv",
-    "time": "2026-03-10T07:31:10.348325+00:00"
+    "output_html_dir": "/home/runner/work/matching-automatic/matching-automatic/data/survey_html",
+    "time": "2026-03-11T10:01:49.350002+00:00"
   },
   "trios_enrich": {
     "status": "ok",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/tmp_trios_enriched.jsonl",
-    "time": "2026-03-10T07:38:43.244281+00:00"
+    "time": "2026-03-11T10:07:37.718415+00:00"
   },
   "thesis_enrich": {
-    "status": "skipped",
-    "mode": "placeholder",
-    "reason": "thesis_enricher_real.py not found",
+    "status": "ok",
+    "mode": "real_script",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/data/researcher_latest.jsonl",
-    "time": "2026-03-10T07:38:43.246951+00:00"
+    "time": "2026-03-11T10:07:38.209666+00:00"
   }
 }

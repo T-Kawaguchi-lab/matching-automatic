@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R0037</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid #ddd;padding:10px;vertical-align:top}
+th{background:#f5f5f5;width:360px;text-align:left}
+td{white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body>
+<table>
+<tr><th>氏名　Name</th><td>謝淳</td></tr>
+<tr><th>メール</th><td>xie.chun.gu@u.tsukuba.ac.jp</td></tr>
+<tr><th>　所属（教員組織）※学生は指導教員の所属を選択　/Affiliation (Faculty/Organization)</th><td>計算科学研究センター/Center for Computational Sciences</td></tr>
+<tr><th>専門分野/ Research Field </th><td>Conputer Vision</td></tr>
+<tr><th>以下の項目から選んでください。 Please select from the options below.</th><td>教員・研究員/ Faculty Member / Researcher</td></tr>
+<tr><th>職位 Position </th><td>助教</td></tr>
+<tr><th>2－1研究へのAIの活用経験と意識（当てはまるものを選んでください）/Experience with and Perceptions of AI Utilization in Research</th><td>AIそのものやAIの高度化を研究している/I conduct research on AI itself or on the advancement of AI technologies.</td></tr>
+<tr><th>5-1　専門分野（複数選択可）Classification of AI Research</th><td>機械学習 Machine Learning;言語メディア処理  Language and Media Processing;AI応用 AI Applications;</td></tr>
+<tr><th>5-2　現在の主要研究テーマをご記入ください。 （1テーマにつき100〜300字程度） Please describe your current main research theme(s).</th><td>1. In-Context 3D Craniofacial Shape Completion for Orthognathic Surgical Planning
+
+Facial-driven orthognathic surgical planning requires a patient-specific reference facial appearance that represents the intended postoperative outcome.
+A clinically important subproblem in this setting is upper-face to lower-face prediction: inferring a normal and anatomically coherent lower facial geometry from an intact upper facial region.
+This task is challenging due to the nonlinear, region-dependent relationship between facial anatomy and skeletal structure, and is not well addressed by existing approaches that primarily focus on reference bone model estimation or rely on linear statistical shape models.
+In this work, we propose a retrieval-guided in-context learning framework for 3D craniofacial shape completion.
+Our method treats complete facial shapes from a population as exemplars and predicts the missing lower face of a query subject by reasoning over these examples.
+A self-supervised retrieval encoder first selects anatomically relevant support examples based on upper-face geometry.
+A transformer-based in-context completion network then jointly processes the retrieved exemplars and the query upper face, decomposing each support shape into upper- and lower-face tokens and synthesizing the corresponding lower-face geometry for the query.
+Unlike existing 3D in-context learning methods that rely on joint sampling or overlapping geometry, our approach enables completion across anatomically disjoint regions.
+Experiments on craniofacial datasets demonstrate that the proposed method produces realistic, anatomically consistent lower-face predictions and outperforms statistical and deep learning baselines in both geometric accuracy and clinical relevance.
+Our framework introduces a new paradigm for exemplar-based facial prediction and provides a flexible foundation for face-driven and soft-tissue–aware surgical planning.
+
+2. Training-Free Style Transfer with Position-Bias Removal and Semantic-Guided Attention
+
+Recent diffusion-based style transfer methods have achieved notable progress, with StyleID attracting wide attention for its training-free attention-based design. However, directly injecting style features into self-attention introduces implicit positional bias, where content tokens tend to over-attend to spatially adjacent style regions, preventing proper global correspondence matching. Moreover, without semantic guidance, neighboring content pixels that belong to the same region may attend to different style areas, producing fragmented textures and disrupting the coherence of region-level appearance. We propose StyleID++, a semantic-aware enhancement framework that addresses these two issues through two simple yet effective components. A circular padding strategy eliminates positional bias and restores the attention mechanism’s global receptive field, while self-guided attention refinement steers each content query by incorporating the attention patterns of its semantically similar neighbors, ensuring that style selection is supported by consistent regional semantics. This leads to cleaner and more coherent stylization. Extensive experiments show that StyleID++ improves style consistency and visual fidelity while remaining fully training-free, outperforming prior methods.
+</td></tr>
+</table>
+</body>
+</html>
