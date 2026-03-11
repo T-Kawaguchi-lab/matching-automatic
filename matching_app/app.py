@@ -941,11 +941,15 @@ default_option_index = 0
 if selected_id_from_query in options:
     default_option_index = options.index(selected_id_from_query)
 
-# URLの selected_id を selectbox の内部状態にも反映する
-if selected_id_from_query in options:
-    current_widget_value = st.session_state.get("person_selectbox", None)
-    if current_widget_value != selected_id_from_query:
+# URLの selected_id は「初回だけ」selectbox に反映する
+# これで通常の選択操作は上書きされず、
+# アンケート画面から ?selected_id=... 付きで戻ったときだけ元の人を復元できる
+if "person_selectbox_initialized" not in st.session_state:
+    if selected_id_from_query in options:
         st.session_state["person_selectbox"] = selected_id_from_query
+    else:
+        st.session_state["person_selectbox"] = None
+    st.session_state["person_selectbox_initialized"] = True
 
 def format_func(_id):
     if _id is None:
@@ -956,7 +960,6 @@ picked_id = st.selectbox(
     "研究者リスト / Researcher list ※「🔍(名前入力 / Type name)」は消して入力してください / delete the ”🔍(名前入力 / Type name)” and type to search",
     options=options,
     format_func=format_func,
-    index=default_option_index,
     key="person_selectbox",
 )
 
