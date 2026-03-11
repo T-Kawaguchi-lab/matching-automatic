@@ -603,49 +603,27 @@ with st.sidebar:
     st.divider()
     st.caption(f"使用モデル / Model : {DEFAULT_MODEL}")
 
-#自動化確認
-status_path = DATA_DIR / "pipeline_status.json"
+import json
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import streamlit as st
 
-# ---- 最終更新日時表示 ----
-if status_path.exists():
-    try:
-        from datetime import datetime
+status_file = "data/pipeline_status.json"
 
-        status = json.loads(status_path.read_text(encoding="utf-8"))
+with open(status_file, "r", encoding="utf-8") as f:
+    status = json.load(f)
 
-        candidate_times = []
+finished_at = status.get("finished_at")
 
-        # 1) 旧来/将来用の候補
-        for key in ["pipeline_finished_at", "finished_at", "updated_at", "last_updated", "time", "started_at"]:
-            v = status.get(key)
-            if isinstance(v, str) and v.strip():
-                candidate_times.append(v.strip())
+if finished_at:
+    dt_utc = datetime.fromisoformat(finished_at)
+    dt_jst = dt_utc.astimezone(ZoneInfo("Asia/Tokyo"))
 
-        # 2) 各ステップの time を拾う
-        for step_key, step_val in status.items():
-            if isinstance(step_val, dict):
-                t = step_val.get("time")
-                if isinstance(t, str) and t.strip():
-                    candidate_times.append(t.strip())
-
-        # 3) 一番新しい時刻を使う
-        parsed = []
-        for t in candidate_times:
-            try:
-                parsed.append(datetime.fromisoformat(t.replace("Z", "+00:00")))
-            except Exception:
-                pass
-
-        if parsed:
-            latest_dt = max(parsed)
-            st.write("最終更新 / Last update : " + latest_dt.strftime("%Y-%m-%d %H:%M:%S"))
-        else:
-            # JSON内に時刻がなければ、ファイル更新時刻を使う
-            mtime = datetime.fromtimestamp(status_path.stat().st_mtime)
-            st.write("最終更新 / Last update : " + mtime.strftime("%Y-%m-%d %H:%M:%S"))
-
-    except Exception as e:
-        st.write(f"最終更新時刻の取得に失敗しました: {e}")
+    st.write(
+        f"最終更新 / Last Update: {dt_jst.strftime('%Y-%m-%d %H:%M:%S')} JST"
+    )
+else:
+    st.write("最終更新時刻が見つかりません")
 # ------------------------
 # Load selected data
 # ------------------------
