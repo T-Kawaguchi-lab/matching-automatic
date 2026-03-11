@@ -46,7 +46,15 @@ def get_preview_id_from_query() -> str:
         raw = ""
     return re.sub(r"[^\w\-]", "", str(raw or ""))
 
-
+def get_selected_id_from_query() -> str:
+    try:
+        q = st.query_params
+        raw = q.get("selected_id", "")
+        if isinstance(raw, list):
+            raw = raw[0] if raw else ""
+    except Exception:
+        raw = ""
+    return re.sub(r"[^\w\-]", "", str(raw or ""))
 
 def render_preview_page(preview_id: str) -> None:
     st.title("アンケート表示 / Survey Viewer")
@@ -57,8 +65,14 @@ def render_preview_page(preview_id: str) -> None:
         st.caption("survey_html/<preview_id>/index.html が必要です。 / survey_html/<preview_id>/index.html is required.")
         st.stop()
 
+    selected_id = get_selected_id_from_query()
+
+    back_url = "./"
+    if selected_id:
+        back_url = f"./?selected_id={selected_id}"
+
     try:
-        st.markdown('[一覧へ戻る / Back to results](./)', unsafe_allow_html=True)
+        st.markdown(f'[一覧へ戻る / Back to results]({back_url})', unsafe_allow_html=True)
     except Exception:
         pass
 
@@ -933,6 +947,11 @@ id_to_label = {
 # ✅ 先頭に None（ダミー）
 options = [None] + list(id_to_label.keys())
 
+selected_id_from_query = get_selected_id_from_query()
+
+default_option_index = 0
+if selected_id_from_query in options:
+    default_option_index = options.index(selected_id_from_query)
 def format_func(_id):
     if _id is None:
         return "🔍(名前入力 / Type name)"
@@ -942,9 +961,15 @@ picked_id = st.selectbox(
     "研究者リスト / Researcher list ※「🔍(名前入力 / Type name)」は消して入力してください / delete the ”🔍(名前入力 / Type name)” and type to search",
     options=options,
     format_func=format_func,
-    index=0,
+    index=default_option_index,
     key="person_selectbox",
 )
+
+if picked_id is not None:
+    try:
+        st.query_params["selected_id"] = str(picked_id)
+    except Exception:
+        pass
 
 # 未選択なら止める
 if picked_id is None:
@@ -1018,13 +1043,14 @@ with stylable_container(
         st.markdown(f"**研究者区分 / Role**<br>{query_label}", unsafe_allow_html=True)
 
     with col3:
-        preview_url = row.get("streamlit_preview_url", "")
-        url = row.get("url", "")
+        preview_url = str(row.get("streamlit_preview_url", "") or "").strip()
+        current_selected_id = str(row.get("id", "") or "").strip()
 
-        links = []
-        if pd.notna(preview_url) and str(preview_url).strip():
+        if preview_url:
+            sep = "&" if "?" in preview_url else "?"
+            preview_url_with_state = f"{preview_url}{sep}selected_id={current_selected_id}"
             st.markdown(
-                f'**アンケート / Survey**<br><a href="{preview_url}" target="_self">見る / View</a>',
+                f'**アンケート / Survey**<br><a href="{preview_url_with_state}" target="_self">見る / View</a>',
                 unsafe_allow_html=True
             )
         else:
@@ -1123,6 +1149,20 @@ show_cols = [
     "summary", "streamlit_preview_url", "matched_url"
 ]
 res_show = res[show_cols].copy()
+if "streamlit_preview_url" in res_show.columns and "id" in res_show.columns:
+    def add_selected_id(url, rid):
+        url = str(url or "").strip()
+        rid = str(rid or "").strip()
+        if not url or not rid:
+            return url
+        sep = "&" if "?" in url else "?"
+        return f"{url}{sep}selected_id={rid}"
+
+    res_show["streamlit_preview_url"] = [
+        add_selected_id(u, rid)
+        for u, rid in zip(res_show["streamlit_preview_url"], res_show["id"])
+    ]
+    
 download_df = res_show.copy()
 
 # ダウンロード用では、アンケートURL列をわかりやすく統一
