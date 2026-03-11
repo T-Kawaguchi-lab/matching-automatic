@@ -1,3 +1,4 @@
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 Add-Type -AssemblyName System.Windows.Forms
 
 $ErrorActionPreference = "Stop"
@@ -25,7 +26,26 @@ git rev-parse --is-inside-work-tree *> $null
 if ($LASTEXITCODE -ne 0) {
     Fail-And-Pause "This folder is not a Git repository."
 }
+$remoteUrl = git remote get-url origin 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Fail-And-Pause "origin remote is not configured."
+}
+if ($remoteUrl -notmatch "T-Kawaguchi-lab/matching-automatic") {
+    Fail-And-Pause "This repository is not matching-automatic."
+}
 
+$currentBranch = git branch --show-current 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Fail-And-Pause "Could not determine current branch."
+}
+if ($currentBranch.Trim() -ne "main") {
+    Fail-And-Pause "Current branch is not main."
+}
+
+git ls-remote origin *> $null
+if ($LASTEXITCODE -ne 0) {
+    Fail-And-Pause "Cannot access GitHub remote. Please check GitHub authentication."
+}
 # Ignore changes to upload_excel.ps1 itself, but stop for other files
 $statusLines = @(git status --porcelain)
 if ($LASTEXITCODE -ne 0) {
@@ -130,4 +150,4 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "Push completed. GitHub Actions should start automatically." -ForegroundColor Green
-pause
+Read-Host "Press Enter to continue"
