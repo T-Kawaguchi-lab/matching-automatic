@@ -1131,11 +1131,22 @@ show_cols = [
 res_show = res[show_cols].copy()
 download_df = res_show.copy()
 
+# ダウンロード用では、アンケートURL列をわかりやすく統一
 if "streamlit_preview_url" in download_df.columns:
-    download_df = download_df.rename(columns={"streamlit_preview_url": "survey_preview_url"})
+    download_df["survey_url"] = download_df["streamlit_preview_url"]
+elif "url" in download_df.columns:
+    download_df["survey_url"] = download_df["url"]
+else:
+    download_df["survey_url"] = ""
 
-if "url" in download_df.columns and "survey_preview_url" not in download_df.columns:
-    download_df["survey_preview_url"] = download_df["url"]
+# 元の内部用列はダウンロードから外す
+drop_cols = []
+for c in ["streamlit_preview_url"]:
+    if c in download_df.columns:
+        drop_cols.append(c)
+
+if drop_cols:
+    download_df = download_df.drop(columns=drop_cols)
 
 csv_bytes = download_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
 json_bytes = download_df.to_json(orient="records", force_ascii=False, indent=2).encode("utf-8")

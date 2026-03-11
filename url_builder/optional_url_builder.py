@@ -16,11 +16,6 @@ V = 21
 
 AI_TEXT = "AIそのものやAIの高度化を研究している/I conduct research on AI itself or on the advancement of AI technologies."
 
-def build_streamlit_preview_url(base_url: str, rid: str) -> str:
-    rid_safe = safe_id(rid)
-    if not base_url or not str(base_url).strip():
-        return f"?preview_id={rid_safe}"
-    return f"{str(base_url).rstrip('/')}/?preview_id={rid_safe}"
 
 def esc(x):
     return html.escape("" if pd.isna(x) else str(x))
@@ -63,6 +58,7 @@ def build_streamlit_preview_url(base_url: str, rid: str) -> str:
     if not base_url or not str(base_url).strip():
         return f"?preview_id={rid_safe}"
     return f"{str(base_url).rstrip('/')}/?preview_id={rid_safe}"
+
 
 
 def main():
@@ -117,17 +113,34 @@ def main():
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{rid_safe}</title>
 <style>
-body{{font-family:system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px}}
-table{{border-collapse:collapse;width:100%;font-size:14px}}
-th,td{{border:1px solid #ddd;padding:10px;vertical-align:top}}
-th{{background:#f5f5f5;width:360px;text-align:left}}
-td{{white-space:pre-wrap;word-break:break-word}}
+:root{{--bg:#f6f8fc;--card:#ffffff;--line:#d8e0ef;--text:#1f2937;--muted:#5b6472;--accent:#1d4ed8;}}
+*{{box-sizing:border-box}}
+body{{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}}
+.wrapper{{max-width:1100px;margin:0 auto;padding:24px 16px 40px}}
+.hero{{background:linear-gradient(135deg,#eff6ff,#ffffff);border:1px solid var(--line);border-radius:18px;padding:22px 20px;margin-bottom:18px;box-shadow:0 10px 30px rgba(15,23,42,.06)}}
+.hero h1{{margin:0 0 6px;font-size:26px}}
+.hero p{{margin:0;color:var(--muted)}}
+.meta{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:18px 0 22px}}
+.item,.card{{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 20px rgba(15,23,42,.04)}}
+.item{{padding:14px 16px}}
+.card{{padding:18px 18px;margin-bottom:14px}}
+.label{{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px}}
+.value{{white-space:pre-wrap;word-break:break-word;font-size:15px}}
+.section-title{{font-size:18px;font-weight:700;margin:8px 0 12px}}
 </style>
 </head>
 <body>
-<table>
-{rows_html}
-</table>
+<div class="wrapper">
+  <div class="hero">
+    <h1>アンケート表示 / Survey Viewer</h1>
+    <p>ID: {rid_safe}</p>
+  </div>
+  <div class="meta">
+    {meta_html}
+  </div>
+  <div class="section-title">回答内容 / Responses</div>
+  {body_html}
+</div>
 </body>
 </html>
 """
