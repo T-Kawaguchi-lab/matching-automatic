@@ -16,6 +16,11 @@ V = 21
 
 AI_TEXT = "AIそのものやAIの高度化を研究している/I conduct research on AI itself or on the advancement of AI technologies."
 
+def build_streamlit_preview_url(base_url: str, rid: str) -> str:
+    rid_safe = safe_id(rid)
+    if not base_url or not str(base_url).strip():
+        return f"?preview_id={rid_safe}"
+    return f"{str(base_url).rstrip('/')}/?preview_id={rid_safe}"
 
 def esc(x):
     return html.escape("" if pd.isna(x) else str(x))

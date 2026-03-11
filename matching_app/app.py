@@ -36,6 +36,34 @@ st.title("AI研究者 ↔ 他分野研究者 推薦 / AI↔Domain Researcher Mat
 APP_DIR = Path(__file__).resolve().parent
 DATA_DIR = APP_DIR / "data"
 
+def get_preview_id_from_query() -> str:
+    try:
+        q = st.query_params
+        raw = q.get("preview_id", "")
+        if isinstance(raw, list):
+            raw = raw[0] if raw else ""
+    except Exception:
+        raw = ""
+    return re.sub(r"[^\w\-]", "", str(raw or ""))
+
+
+
+def render_preview_page(preview_id: str) -> None:
+    st.title("アンケート表示 / Survey Viewer")
+
+    html_text = read_html_preview(preview_id)
+    if not html_text:
+        st.error(f"HTMLが見つかりませんでした: {preview_id}")
+        st.caption("survey_html/<preview_id>/index.html が必要です。 / survey_html/<preview_id>/index.html is required.")
+        st.stop()
+
+    try:
+        st.markdown('[一覧へ戻る / Back to results](./)', unsafe_allow_html=True)
+    except Exception:
+        pass
+
+    components.html(html_text, height=900, scrolling=True)
+    st.stop()
 
 def read_jsonl_from_path(path: Path) -> List[Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []
@@ -64,9 +92,11 @@ def read_html_preview(preview_id: str) -> str:
     preview_id = re.sub(r"[^\w\-]", "", str(preview_id or ""))
     if not preview_id:
         return ""
+
     html_path = DATA_DIR / "survey_html" / preview_id / "index.html"
     if not html_path.exists():
         return ""
+
     return html_path.read_text(encoding="utf-8", errors="ignore")
 
 def get_nested(d: Dict[str, Any], path: str) -> Any:
@@ -502,6 +532,9 @@ def precompute_similarity_matrices(
         "sim_other_to_ai_c": sim_other_to_ai_c,
     }
 
+preview_id = get_preview_id_from_query()
+if preview_id:
+    render_preview_page(preview_id)
 
 # ------------------------
 # Data selection UI
@@ -996,17 +1029,12 @@ with stylable_container(
 
         links = []
         if pd.notna(preview_url) and str(preview_url).strip():
-            links.append(f'<a href="{preview_url}" target="_blank">アプリ内表示 / Preview</a>')
-        if pd.notna(url) and str(url).strip():
-            links.append(f'<a href="{url}" target="_blank">リンク / Open</a>')
-
-        if links:
             st.markdown(
-                f'**アンケート表示 / Survey Preview**<br>{" ｜ ".join(links)}',
+                f'**アンケート / Survey**<br><a href="{preview_url}" target="_self">見る / View</a>',
                 unsafe_allow_html=True
             )
         else:
-            st.markdown("**アンケート表示 / Survey Preview**<br>なし / None", unsafe_allow_html=True)
+            st.markdown("**アンケート / Survey**<br>なし / None", unsafe_allow_html=True)
 
     with col4:
         trios = row.get("matched_url", "")
@@ -1032,12 +1060,6 @@ with stylable_container(
         embed_text,
         height=300
     )
-    preview_html = read_html_preview(row.get("id", ""))
-    if preview_html:
-        st.markdown("#### アンケートHTML表示 / Survey HTML Preview")
-        components.html(preview_html, height=700, scrolling=True)
-    else:
-        st.info("この人物のHTMLプレビューはまだ生成されていません。 / HTML preview for this person has not been generated yet.")
 
 st.write("### 現在の重み / Current Weights")
 st.write(
