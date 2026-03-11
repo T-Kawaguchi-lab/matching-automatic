@@ -28,7 +28,8 @@ function Remove-StaleRebaseState {
         try {
             Remove-Item -Recurse -Force $rebaseMerge
             Write-Host "Removed stale .git/rebase-merge"
-        } catch {
+        }
+        catch {
             Fail-And-Pause "古い rebase 状態 (.git/rebase-merge) を削除できませんでした。OneDrive同期・VS Code・Explorerを閉じて再実行してください。"
         }
     }
@@ -37,7 +38,8 @@ function Remove-StaleRebaseState {
         try {
             Remove-Item -Recurse -Force $rebaseApply
             Write-Host "Removed stale .git/rebase-apply"
-        } catch {
+        }
+        catch {
             Fail-And-Pause "古い rebase 状態 (.git/rebase-apply) を削除できませんでした。OneDrive同期・VS Code・Explorerを閉じて再実行してください。"
         }
     }
