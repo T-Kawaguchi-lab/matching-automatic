@@ -333,13 +333,13 @@ def build_results_table_html(df: pd.DataFrame) -> str:
             if c == "streamlit_preview_url":
                 url = str(val or "").strip()
                 if url:
-                    cell = f'<a href="{_esc_html(url)}" target="_self">open</a>'
+                    cell = f'<a href="{_esc_html(url)}" target="_top">open</a>'
                 else:
                     cell = ""
             elif c == "matched_url":
                 url = str(val or "").strip()
                 if url:
-                    cell = f'<a href="{_esc_html(url)}" target="_blank">open</a>'
+                    cell = f'<a href="{_esc_html(url)}" target="_blank" rel="noopener noreferrer">open</a>'
                 else:
                     cell = ""
             elif c in ["similarity_a", "similarity_b", "similarity_c", "similarity"]:
@@ -348,7 +348,7 @@ def build_results_table_html(df: pd.DataFrame) -> str:
                 except Exception:
                     cell = _esc_html(val)
             else:
-                cell = _esc_html(val)
+                cell = _esc_html(val).replace("\n", "<br>")
 
             tds.append(f"<td>{cell}</td>")
 
@@ -358,43 +358,66 @@ def build_results_table_html(df: pd.DataFrame) -> str:
     tbody = "".join(html_rows)
 
     return f"""
-    <style>
-    .results-table-wrap {{
-        overflow-x: auto;
-        max-height: 700px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-    }}
-    table.results-table {{
-        border-collapse: collapse;
-        width: 100%;
-        font-size: 14px;
-        background: white;
-    }}
-    .results-table th, .results-table td {{
-        border-bottom: 1px solid #eee;
-        padding: 8px 10px;
-        text-align: left;
-        vertical-align: top;
-        white-space: normal;
-    }}
-    .results-table th {{
-        position: sticky;
-        top: 0;
-        background: #f7f7f7;
-        z-index: 1;
-    }}
-    .results-table tr:hover {{
-        background: #fafafa;
-    }}
-    </style>
-    <div class="results-table-wrap">
-      <table class="results-table">
-        <thead>{thead}</thead>
-        <tbody>{tbody}</tbody>
-      </table>
-    </div>
-    """
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html, body {{
+    margin: 0;
+    padding: 0;
+    background: white;
+    font-family: sans-serif;
+}}
+.results-table-wrap {{
+    overflow-x: auto;
+    max-height: 700px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}}
+table.results-table {{
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+    background: white;
+}}
+.results-table th, .results-table td {{
+    border-bottom: 1px solid #eee;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+    white-space: normal;
+    word-break: break-word;
+}}
+.results-table th {{
+    position: sticky;
+    top: 0;
+    background: #f7f7f7;
+    z-index: 1;
+}}
+.results-table tr:hover {{
+    background: #fafafa;
+}}
+a {{
+    color: #1f77b4;
+    text-decoration: none;
+}}
+a:hover {{
+    text-decoration: underline;
+}}
+</style>
+</head>
+<body>
+<div class="results-table-wrap">
+  <table class="results-table">
+    <thead>{thead}</thead>
+    <tbody>{tbody}</tbody>
+  </table>
+</div>
+</body>
+</html>
+"""
 
 def build_embedding_texts_three_axes(r: Dict[str, Any]) -> Tuple[str, str, str, str]:
     """
@@ -1316,8 +1339,9 @@ json_bytes = download_df.to_json(orient="records", force_ascii=False, indent=2).
 st.subheader(f"検索結果 / Results list （推薦 / Recommendation : {doc_label})　　件数 / Count : {len(res_show)}")
 st.caption(f"表示 / Direction : {query_label} → {doc_label}")
 st.caption("※ 入力データが一致している場合は、類似度に +0.01 されます。 / If the input data matches exactly, +0.01 is added to the similarity score.")
+
 results_html = build_results_table_html(res_show)
-st.markdown(results_html, unsafe_allow_html=True)
+components.html(results_html, height=720, scrolling=True)
 
 
 st.caption(f"使用モデル / Model : {DEFAULT_MODEL}")
