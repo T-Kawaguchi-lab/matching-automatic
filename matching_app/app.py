@@ -952,6 +952,13 @@ selected_id_from_query = get_selected_id_from_query()
 default_option_index = 0
 if selected_id_from_query in options:
     default_option_index = options.index(selected_id_from_query)
+
+# URLの selected_id を selectbox の内部状態にも反映する
+if selected_id_from_query in options:
+    current_widget_value = st.session_state.get("person_selectbox", None)
+    if current_widget_value != selected_id_from_query:
+        st.session_state["person_selectbox"] = selected_id_from_query
+
 def format_func(_id):
     if _id is None:
         return "🔍(名前入力 / Type name)"
@@ -1044,13 +1051,15 @@ with stylable_container(
 
     with col3:
         preview_url = str(row.get("streamlit_preview_url", "") or "").strip()
-        current_selected_id = str(row.get("id", "") or "").strip()
+
+        # row の id ではなく、今一覧で選んでいる picked_id を使う
+        current_selected_id = str(picked_id or "").strip()
 
         if preview_url:
             sep = "&" if "?" in preview_url else "?"
             preview_url_with_state = f"{preview_url}{sep}selected_id={current_selected_id}"
             st.markdown(
-                f'**アンケート / Survey**<br><a href="{preview_url_with_state}" target="_self">見る / View</a>',
+                f'**アンケート / Survey**<br><a href="{preview_url_with_state}">見る / View</a>',
                 unsafe_allow_html=True
             )
         else:
@@ -1149,20 +1158,22 @@ show_cols = [
     "summary", "streamlit_preview_url", "matched_url"
 ]
 res_show = res[show_cols].copy()
-if "streamlit_preview_url" in res_show.columns and "id" in res_show.columns:
-    def add_selected_id(url, rid):
+
+if "streamlit_preview_url" in res_show.columns:
+    def add_selected_id(url, selected_id):
         url = str(url or "").strip()
-        rid = str(rid or "").strip()
-        if not url or not rid:
+        selected_id = str(selected_id or "").strip()
+        if not url or not selected_id:
             return url
         sep = "&" if "?" in url else "?"
-        return f"{url}{sep}selected_id={rid}"
+        return f"{url}{sep}selected_id={selected_id}"
 
+    # 飛び先の人の id ではなく、今選択中の picked_id を全行に付ける
     res_show["streamlit_preview_url"] = [
-        add_selected_id(u, rid)
-        for u, rid in zip(res_show["streamlit_preview_url"], res_show["id"])
+        add_selected_id(u, picked_id)
+        for u in res_show["streamlit_preview_url"]
     ]
-    
+
 download_df = res_show.copy()
 
 # ダウンロード用では、アンケートURL列をわかりやすく統一
