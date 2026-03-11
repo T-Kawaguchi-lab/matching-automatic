@@ -30,7 +30,7 @@ DEFAULT_WEIGHT_B = 0.4
 DEFAULT_WEIGHT_C = 0.2
 
 
-st.set_page_config(page_title="AI↔他分野 推薦 ２/ AI↔Domain Matching", layout="wide")
+st.set_page_config(page_title="AI↔他分野 推薦 version3/ AI↔Domain Matching", layout="wide")
 st.title("AI研究者 ↔ 他分野研究者 推薦 / AI↔Domain Researcher Matching")
 
 APP_DIR = Path(__file__).resolve().parent
