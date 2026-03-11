@@ -72,7 +72,7 @@ def main():
     input_xlsx = Path(args.input_xlsx)
     output_csv = Path(args.output_csv)
     output_html_dir = Path(args.output_html_dir)
-    streamlit_base_url = args.streamlit_base_url.strip()
+    streamlit_base_url = (args.streamlit_base_url or "").strip()
 
     print(f"使用するExcel: {input_xlsx}")
     df = pd.read_excel(input_xlsx)
