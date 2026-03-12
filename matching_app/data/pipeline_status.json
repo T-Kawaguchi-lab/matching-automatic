@@ -1,11 +1,11 @@
 {
-  "started_at": "2026-03-11T16:45:54.931861+00:00",
+  "started_at": "2026-03-12T09:23:10.181228+00:00",
   "input_xlsx": "/home/runner/work/matching-automatic/matching-automatic/incoming/forms_latest.xlsx",
   "structured_generation": {
     "status": "ok",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/tmp_structured.jsonl",
     "output_xlsx": "/home/runner/work/matching-automatic/matching-automatic/tmp_structured.xlsx",
-    "time": "2026-03-11T16:45:56.496613+00:00"
+    "time": "2026-03-12T09:23:11.923076+00:00"
   },
   "url_generation": {
     "status": "ok",
@@ -13,17 +13,17 @@
     "output_csv": "/home/runner/work/matching-automatic/matching-automatic/data/url_latest.csv",
     "output_html_dir": "/home/runner/work/matching-automatic/matching-automatic/data/survey_html",
     "streamlit_base_url": "https://matching-automatic-e7d9kjg9bivjjndmqvuw93.streamlit.app/~/+",
-    "time": "2026-03-11T16:45:57.194296+00:00"
+    "time": "2026-03-12T09:23:12.755327+00:00"
   },
   "trios_enrich": {
     "status": "ok",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/tmp_trios_enriched.jsonl",
-    "time": "2026-03-11T16:51:40.074694+00:00"
+    "time": "2026-03-12T09:30:50.758856+00:00"
   },
   "thesis_enrich": {
     "status": "ok",
     "mode": "real_script",
     "output_jsonl": "/home/runner/work/matching-automatic/matching-automatic/data/researcher_latest.jsonl",
-    "time": "2026-03-11T16:51:40.527191+00:00"
+    "time": "2026-03-12T09:30:51.219501+00:00"
   }
 }
