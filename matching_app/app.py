@@ -1480,6 +1480,7 @@ json_bytes = download_df.to_json(orient="records", force_ascii=False, indent=2).
 st.subheader(f"検索結果 / Results list （推薦 / Recommendation : {doc_label})　　件数 / Count : {len(res_show)}")
 st.caption(f"表示 / Direction : {query_label} → {doc_label}")
 st.caption("※ 入力データが一致している場合は、類似度に +0.01 されます。 / If the input data matches exactly, +0.01 is added to the similarity score.")
+st.caption("※ 入力データがない場合は類似度が0.6になります。 / If no input data is available, the similarity score is set to 0.6.")
 
 try:
     st.dataframe(
