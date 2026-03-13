@@ -866,7 +866,7 @@ roles_raw = []
 role_overrides = load_role_overrides()
 rows_for_df = []
 for i, r in enumerate(rows, start=1):
-    rid = f"R{i+1:04d}"
+    rid = f"R{i:04d}"
     meta = r.get("meta", {}) if isinstance(r.get("meta", {}), dict) else {}
     person_key = build_person_key(r)
     # role: 旧(meta.role)→新(role) の順で取得
@@ -903,6 +903,7 @@ for i, r in enumerate(rows, start=1):
 
     records.append({
         "id": rid,
+        "person_key": person_key,
         "role_norm": role_n,
         "name": meta.get("name") or meta.get("name_raw") or "",
         "affiliation": meta.get("affiliation") or "",
@@ -1210,7 +1211,11 @@ new_role_label = st.selectbox(
 if st.button("この変更を保存 / Save this change", key=f"save_role_{picked['id']}"):
     updated_overrides = load_role_overrides()
 
-    person_key = picked["person_key"]
+    person_key = picked.get("person_key")
+    if not person_key:
+        st.error("person_key が見つかりません。records 側に person_key を追加してください。")
+        st.stop()
+
     actor_name = picked.get("name", picked["id"])
 
     updated_overrides[person_key] = role_options[new_role_label]
