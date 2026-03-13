@@ -416,25 +416,32 @@ def normalize_exact_token(s: Any) -> str:
 
 def has_real_content(text: str) -> bool:
     """
-    prefix(Task:)を除いた実データが存在するか判定する
+    prefix(Task系の説明文)を除いた実データが存在するか判定する
     """
     if text is None:
         return False
 
     t = str(text).strip()
-
     if not t:
         return False
 
-    # Task prefix を削除
-    t = re.sub(r"^Task:.*?\n", "", t, flags=re.DOTALL).strip()
+    lines = [line.strip() for line in t.splitlines()]
 
-    # prefixだけなら空
-    if not t:
+    cleaned = []
+    for line in lines:
+        if not line:
+            continue
+        if line.startswith("Task:"):
+            continue
+        if line.startswith("Match based on research theme similarity"):
+            continue
+        cleaned.append(line)
+
+    if not cleaned:
         return False
 
-    # 実データが短すぎる場合も空扱い
-    return len(t) > 10
+    real_text = "\n".join(cleaned).strip()
+    return len(real_text) > 0
 
 def get_a_side_raw_items(r: Dict[str, Any]) -> List[str]:
     """
@@ -1375,10 +1382,10 @@ sims_a = raw_sims_a.copy()
 sims_b = raw_sims_b.copy()
 sims_c = raw_sims_c.copy()
 
-# どちらかが空なら 0.5
-sims_a[~(query_has_a & doc_has_a)] = 0.5
-sims_b[~(query_has_b & doc_has_b)] = 0.5
-sims_c[~(query_has_c & doc_has_c)] = 0.5
+# どちらかが空なら 0.6
+sims_a[~(query_has_a & doc_has_a)] = 0.6
+sims_b[~(query_has_b & doc_has_b)] = 0.6
+sims_c[~(query_has_c & doc_has_c)] = 0.6
 
 # A+ 完全一致ボーナス
 query_a_raw_items = query_df.iloc[sel_idx]["a_raw_items"]
