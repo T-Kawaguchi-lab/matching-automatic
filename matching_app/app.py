@@ -33,9 +33,197 @@ DEFAULT_WEIGHT_C = 0.2
 st.set_page_config(page_title="AI↔他分野 推薦 version3/ AI↔Domain Matching", layout="wide")
 st.title("AI研究者 ↔ 他分野研究者 推薦 / AI↔Domain Researcher Matching")
 
+import base64
+import os
+from typing import Any, Dict, Tuple
+from urllib import error as urllib_error
+from urllib import request as urllib_request
+
+
 APP_DIR = Path(__file__).resolve().parent
 DATA_DIR = APP_DIR / "data"
+ROLE_OVERRIDE_PATH = DATA_DIR / "role_overrides.json"
 
+
+def get_secret(name: str, default: str = "") -> str:
+    # Streamlit secrets 優先、なければ環境変数
+    try:
+        if name in st.secrets:
+            return str(st.secrets[name]).strip()
+    except Exception:
+        pass
+    return os.getenv(name, default).strip()
+
+
+GITHUB_REPO = get_secret("GITHUB_REPO", "")
+GITHUB_BRANCH = get_secret("GITHUB_BRANCH", "main") or "main"
+GITHUB_TOKEN = get_secret("GITHUB_TOKEN", "")
+
+GITHUB_ROLE_PATHS = [
+    "data/role_overrides.json",
+    "matching_app/data/role_overrides.json",
+]
+
+
+def normalize_identity_text(v: Any) -> str:
+    if v is None:
+        return ""
+    s = str(v).strip().lower()
+    s = s.replace("　", " ")
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+def get_nested(d: Dict[str, Any], path: str) -> Any:
+    cur: Any = d
+    for part in path.split("."):
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            return None
+    return cur
+
+
+def normalize_role_value(v: Any) -> str:
+    if v is None:
+        return ""
+    s = str(v).strip().lower()
+    s = s.replace(" ", "_").replace("-", "_")
+
+    if s in {
+        "ai_researcher", "ai", "provider",
+        "system_researcher", "system", "ai_research",
+        "ai-researcher", "ai_researchers",
+        "ai研究者", "ai研究", "ai系", "ai分野",
+    }:
+        return "ai_researcher"
+
+    if s in {
+        "other_field_researcher", "other", "needs",
+        "science_researcher", "domain_researcher",
+        "non_ai", "other_field",
+        "other-field-researcher", "domain",
+        "他分野研究者", "非ai", "非_ai", "non-ai",
+    }:
+        return "other_field_researcher"
+
+    return s
+
+
+def build_person_key(r: Dict[str, Any]) -> str:
+    meta = r.get("meta", {}) if isinstance(r.get("meta", {}), dict) else {}
+
+    email = normalize_identity_text(meta.get("email"))
+    if email:
+        return f"email:{email}"
+
+    matched_url = normalize_identity_text(get_nested(r, "trios.matched_url"))
+    if matched_url:
+        return f"trios:{matched_url.rstrip('/')}"
+
+    name = normalize_identity_text(meta.get("name") or meta.get("name_raw"))
+    affiliation = normalize_identity_text(meta.get("affiliation"))
+    position = normalize_identity_text(meta.get("position"))
+    research_field = normalize_identity_text(meta.get("research_field"))
+
+    return f"fallback:{name}|{affiliation}|{position}|{research_field}"
+
+
+def load_role_overrides() -> Dict[str, str]:
+    if not ROLE_OVERRIDE_PATH.exists():
+        return {}
+
+    try:
+        data = json.loads(ROLE_OVERRIDE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    out: Dict[str, str] = {}
+    for k, v in data.items():
+        nk = str(k).strip()
+        nv = normalize_role_value(v)
+        if nk and nv:
+            out[nk] = nv
+    return out
+
+
+def save_role_overrides_local(data: Dict[str, str]) -> None:
+    ROLE_OVERRIDE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ROLE_OVERRIDE_PATH.write_text(
+        json.dumps(dict(sorted(data.items())), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def github_sync_enabled() -> bool:
+    return bool(GITHUB_REPO and GITHUB_TOKEN)
+
+
+def github_headers() -> Dict[str, str]:
+    return {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "streamlit-role-overrides-sync",
+    }
+
+
+def github_get_file_sha(repo_path: str) -> str:
+    if not github_sync_enabled():
+        return ""
+
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{repo_path}?ref={GITHUB_BRANCH}"
+    req = urllib_request.Request(url, headers=github_headers(), method="GET")
+
+    try:
+        with urllib_request.urlopen(req, timeout=20) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        return str(payload.get("sha") or "")
+    except urllib_error.HTTPError as e:
+        if e.code == 404:
+            return ""
+        raise
+
+
+def github_put_file(repo_path: str, content_text: str, message: str) -> None:
+    body = {
+        "message": message,
+        "content": base64.b64encode(content_text.encode("utf-8")).decode("ascii"),
+        "branch": GITHUB_BRANCH,
+    }
+
+    sha = github_get_file_sha(repo_path)
+    if sha:
+        body["sha"] = sha
+
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{repo_path}"
+    req = urllib_request.Request(
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={**github_headers(), "Content-Type": "application/json"},
+        method="PUT",
+    )
+
+    with urllib_request.urlopen(req, timeout=20):
+        pass
+
+
+def sync_role_overrides_to_github(data: Dict[str, str], actor_name: str, person_key: str) -> Tuple[bool, str]:
+    if not github_sync_enabled():
+        return False, "GitHub連携設定がないため、このapp内だけ保存しました。"
+
+    content_text = json.dumps(dict(sorted(data.items())), ensure_ascii=False, indent=2) + "\n"
+    message = f"Update role override for {actor_name} ({person_key})"
+
+    try:
+        for repo_path in GITHUB_ROLE_PATHS:
+            github_put_file(repo_path, content_text, message)
+        return True, "GitHub に同期しました。他のPCでも反映されます。"
+    except Exception as e:
+        return False, f"ローカル保存は成功しましたが、GitHub同期に失敗しました: {e}"
 def get_preview_id_from_query() -> str:
     try:
         q = st.query_params
@@ -675,15 +863,31 @@ st.markdown(
 # ------------------------
 records = []
 roles_raw = []
+role_overrides = load_role_overrides()
+rows_for_df = []
 for i, r in enumerate(rows, start=1):
-    rid = build_id(i)
+    rid = f"R{i+1:04d}"
     meta = r.get("meta", {}) if isinstance(r.get("meta", {}), dict) else {}
-
+    person_key = build_person_key(r)
     # role: 旧(meta.role)→新(role) の順で取得
     role_raw = get_nested(r, "meta.role")
     if role_raw is None:
         role_raw = get_nested(r, "role")
-    role_n = normalize_role_value(role_raw)
+
+    override_role = role_overrides.get(person_key)
+    if override_role:
+        role_n = normalize_role_value(override_role)
+    else:
+        role_n = normalize_role_value(role_raw)
+
+    rows_for_df.append({
+        "id": rid,
+        "person_key": person_key,
+        "role_norm": role_n,
+        "name": get_nested(r, "meta.name") or get_nested(r, "meta.name_raw") or "",
+        "research_field": get_nested(r, "meta.research_field") or "",
+        "raw": r,
+    })
     roles_raw.append(role_raw)
 
     embed_text_a, embed_text_b, embed_text_c, embed_text = build_embedding_texts_three_axes(r)
@@ -985,6 +1189,47 @@ wc = float(weight_c / weight_sum)
 
 # 選択後
 picked = df[df["id"] == picked_id].iloc[0]
+st.markdown("### 研究者区分の変更 / Change researcher category")
+
+role_options = {
+    "AI researcher": "ai_researcher",
+    "Domain researcher": "other_field_researcher",
+}
+reverse_role_options = {v: k for k, v in role_options.items()}
+
+current_role = normalize_role_value(picked["role_norm"])
+current_label = reverse_role_options.get(current_role, "Domain researcher")
+
+new_role_label = st.selectbox(
+    "区分を選択",
+    options=list(role_options.keys()),
+    index=list(role_options.keys()).index(current_label),
+    key=f"edit_role_{picked['id']}",
+)
+
+if st.button("この変更を保存 / Save this change", key=f"save_role_{picked['id']}"):
+    updated_overrides = load_role_overrides()
+
+    person_key = picked["person_key"]
+    actor_name = picked.get("name", picked["id"])
+
+    updated_overrides[person_key] = role_options[new_role_label]
+
+    save_role_overrides_local(updated_overrides)
+
+    synced, sync_message = sync_role_overrides_to_github(
+        updated_overrides,
+        actor_name=actor_name,
+        person_key=person_key,
+    )
+
+    if synced:
+        st.success(sync_message)
+    else:
+        st.warning(sync_message)
+
+    st.rerun()
+
 picked_role = picked["role_norm"]
 
 if picked_role == "ai_researcher":

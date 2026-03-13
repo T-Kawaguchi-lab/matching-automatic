@@ -1,9 +1,11 @@
 import json
+import re
 import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,6 +32,7 @@ FINAL_JSONL = DATA_DIR / "researcher_latest.jsonl"
 FINAL_URL_CSV = DATA_DIR / "url_latest.csv"
 FINAL_SURVEY_HTML_DIR = ROOT / "data" / "survey_html"
 STATUS_JSON = DATA_DIR / "pipeline_status.json"
+ROLE_OVERRIDE_JSON = DATA_DIR / "role_overrides.json"
 
 
 def now_iso():
@@ -48,7 +51,7 @@ def run(cmd, cwd=None):
         text=True,
         capture_output=True,
         encoding="utf-8",
-        errors="ignore"
+        errors="ignore",
     )
     print(result.stdout, flush=True)
     if result.returncode != 0:
@@ -59,7 +62,7 @@ def run(cmd, cwd=None):
 def write_status(status: dict):
     STATUS_JSON.write_text(
         json.dumps(status, ensure_ascii=False, indent=2),
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
 
@@ -69,6 +72,139 @@ def ensure_input():
             f"入力ファイルが見つかりません: {INCOMING_XLSX}\n"
             "Power Automate から forms_latest.xlsx を配置してください。"
         )
+
+
+def get_nested(d: Dict[str, Any], path: str) -> Any:
+    cur: Any = d
+    for part in path.split("."):
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            return None
+    return cur
+
+
+def normalize_identity_text(v: Any) -> str:
+    if v is None:
+        return ""
+    s = str(v).strip().lower()
+    s = s.replace("　", " ")
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+def normalize_role_value(v: Any) -> str:
+    if v is None:
+        return ""
+    s = str(v).strip().lower()
+    s = s.replace(" ", "_").replace("-", "_")
+
+    if s in {
+        "ai_researcher", "ai", "provider",
+        "system_researcher", "system", "ai_research",
+        "ai-researcher", "ai_researchers",
+        "ai研究者", "ai研究", "ai系", "ai分野",
+    }:
+        return "ai_researcher"
+
+    if s in {
+        "other_field_researcher", "other", "needs",
+        "science_researcher", "domain_researcher",
+        "non_ai", "other_field",
+        "other-field-researcher", "domain",
+        "他分野研究者", "非ai", "非_ai", "non-ai",
+    }:
+        return "other_field_researcher"
+
+    return s
+
+
+def build_person_key(r: Dict[str, Any]) -> str:
+    meta = r.get("meta", {}) if isinstance(r.get("meta", {}), dict) else {}
+
+    email = normalize_identity_text(meta.get("email"))
+    if email:
+        return f"email:{email}"
+
+    matched_url = normalize_identity_text(get_nested(r, "trios.matched_url"))
+    if matched_url:
+        return f"trios:{matched_url.rstrip('/')}"
+
+    name = normalize_identity_text(meta.get("name") or meta.get("name_raw"))
+    affiliation = normalize_identity_text(meta.get("affiliation"))
+    position = normalize_identity_text(meta.get("position"))
+    research_field = normalize_identity_text(meta.get("research_field"))
+
+    return f"fallback:{name}|{affiliation}|{position}|{research_field}"
+
+
+def load_jsonl(path: Path):
+    rows = []
+    with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rows.append(json.loads(line))
+    return rows
+
+
+def load_existing_role_overrides() -> Dict[str, str]:
+    candidates = [
+        ROLE_OVERRIDE_JSON,
+        APP_DIR / "data" / "role_overrides.json",
+    ]
+    for cand in candidates:
+        if not cand.exists():
+            continue
+        try:
+            data = json.loads(cand.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        if not isinstance(data, dict):
+            continue
+
+        out: Dict[str, str] = {}
+        for k, v in data.items():
+            nk = str(k).strip()
+            nv = normalize_role_value(v)
+            if nk and nv:
+                out[nk] = nv
+        return out
+
+    return {}
+
+
+def generate_role_overrides(status):
+    rows = load_jsonl(FINAL_JSONL)
+    existing = load_existing_role_overrides()
+    generated: Dict[str, str] = {}
+
+    for r in rows:
+        person_key = build_person_key(r)
+
+        role_raw = get_nested(r, "meta.role")
+        if role_raw is None:
+            role_raw = get_nested(r, "role")
+
+        # 既存overrideがあれば優先
+        role_norm = normalize_role_value(existing.get(person_key, role_raw))
+
+        if person_key and role_norm:
+            generated[person_key] = role_norm
+
+    ROLE_OVERRIDE_JSON.write_text(
+        json.dumps(dict(sorted(generated.items())), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    status["role_overrides"] = {
+        "status": "ok",
+        "output_json": str(ROLE_OVERRIDE_JSON),
+        "count": len(generated),
+        "time": now_iso(),
+    }
 
 
 def run_structured_generation(status):
@@ -83,8 +219,9 @@ def run_structured_generation(status):
             "--out-jsonl", str(STRUCT_OUT_JSONL),
             "--out-xlsx", str(STRUCT_OUT_XLSX),
         ],
-        cwd=STRUCT_DIR
+        cwd=STRUCT_DIR,
     )
+
     status["structured_generation"] = {
         "status": "ok",
         "output_jsonl": str(STRUCT_OUT_JSONL),
@@ -108,7 +245,7 @@ def run_optional_url_generation(status):
             "--output-html-dir", str(FINAL_SURVEY_HTML_DIR),
             "--streamlit-base-url", streamlit_base_url,
         ],
-        cwd=ROOT / "url_builder"
+        cwd=ROOT / "url_builder",
     )
 
     status["url_generation"] = {
@@ -119,7 +256,8 @@ def run_optional_url_generation(status):
         "streamlit_base_url": streamlit_base_url,
         "time": now_iso(),
     }
-    
+
+
 def run_trios(status):
     if not TRIOS_SCRIPT.exists():
         raise FileNotFoundError(f"TRIOS追加スクリプトがありません: {TRIOS_SCRIPT}")
@@ -132,8 +270,9 @@ def run_trios(status):
             "--out", str(TRIOS_OUT_JSONL),
             "--online",
         ],
-        cwd=TRIOS_DIR
+        cwd=TRIOS_DIR,
     )
+
     status["trios_enrich"] = {
         "status": "ok",
         "output_jsonl": str(TRIOS_OUT_JSONL),
@@ -151,7 +290,7 @@ def run_optional_thesis(status):
                 "--csv", str(ROOT / "thesis_enrich" / "masters_thesis.csv"),
                 "--output-jsonl", str(THESIS_OUT_JSONL),
             ],
-            cwd=ROOT / "thesis_enrich"
+            cwd=ROOT / "thesis_enrich",
         )
         shutil.copy2(THESIS_OUT_JSONL, FINAL_JSONL)
         status["thesis_enrich"] = {
@@ -171,6 +310,7 @@ def run_optional_thesis(status):
         }
         log("[SKIP] 修論追加スクリプトが未配置のため、TRIOS出力をそのまま最終JSONLにしました。")
 
+
 def copy_to_app_data(status):
     app_data = APP_DIR / "data"
     app_data.mkdir(parents=True, exist_ok=True)
@@ -178,6 +318,9 @@ def copy_to_app_data(status):
     shutil.copy2(FINAL_JSONL, app_data / FINAL_JSONL.name)
     shutil.copy2(FINAL_URL_CSV, app_data / FINAL_URL_CSV.name)
     shutil.copy2(STATUS_JSON, app_data / STATUS_JSON.name)
+
+    if ROLE_OVERRIDE_JSON.exists():
+        shutil.copy2(ROLE_OVERRIDE_JSON, app_data / ROLE_OVERRIDE_JSON.name)
 
     app_survey_dir = app_data / "survey_html"
     if app_survey_dir.exists():
@@ -191,6 +334,7 @@ def copy_to_app_data(status):
             str(app_data / FINAL_JSONL.name),
             str(app_data / FINAL_URL_CSV.name),
             str(app_data / STATUS_JSON.name),
+            str(app_data / ROLE_OVERRIDE_JSON.name),
             str(app_survey_dir),
         ],
         "time": now_iso(),
@@ -209,12 +353,19 @@ def main():
         run_optional_url_generation(status)
         run_trios(status)
         run_optional_thesis(status)
-        write_status(status)   # 一旦ここで保存
+
+        # ここで自動生成
+        generate_role_overrides(status)
+        write_status(status)
+
+        # app側dataへコピー
         copy_to_app_data(status)
+
         status["finished_at"] = now_iso()
         status["final_status"] = "ok"
         write_status(status)
         log("[OK] pipeline completed.")
+
     except Exception as e:
         status["finished_at"] = now_iso()
         status["final_status"] = "error"
