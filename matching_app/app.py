@@ -414,6 +414,27 @@ def normalize_exact_token(s: Any) -> str:
     t = re.sub(r"\s+", " ", t)
     return t
 
+def has_real_content(text: str) -> bool:
+    """
+    prefix(Task:)を除いた実データが存在するか判定する
+    """
+    if text is None:
+        return False
+
+    t = str(text).strip()
+
+    if not t:
+        return False
+
+    # Task prefix を削除
+    t = re.sub(r"^Task:.*?\n", "", t, flags=re.DOTALL).strip()
+
+    # prefixだけなら空
+    if not t:
+        return False
+
+    # 実データが短すぎる場合も空扱い
+    return len(t) > 10
 
 def get_a_side_raw_items(r: Dict[str, Any]) -> List[str]:
     """
@@ -915,9 +936,9 @@ for i, r in enumerate(rows, start=1):
         "embed_text_c": embed_text_c,
         "embed_text": embed_text,
         "a_raw_items": a_raw_items,
-        "has_a": bool(str(embed_text_a).strip()),
-        "has_b": bool(str(embed_text_b).strip()),
-        "has_c": bool(str(embed_text_c).strip()),
+        "has_a": has_real_content(embed_text_a),
+        "has_b": has_real_content(embed_text_b),
+        "has_c": has_real_content(embed_text_c),
         "matched_url": matched_url,
         "masters_thesis_titles": masters_thesis_titles,
         "role_raw": "" if role_raw is None else str(role_raw),
